@@ -1,4 +1,4 @@
-<script>
+{{-- <script>
 // ============================ Revenue Statistics Chart start ===============================
 var options = {
   series: [{
@@ -229,4 +229,4 @@ var options = {
 var chart = new ApexCharts(document.querySelector("#newAdmissions"), options);
 chart.render();
 // ================================ New Admissions Chart End ================================ 
-</script>
+</script> --}}
