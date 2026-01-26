@@ -377,25 +377,30 @@ class StudentController extends Controller
             }
         }
 
+        // Store original values before update for comparison
+        $originalCounselorId = $student->counselor_id;
+        $originalApplicationStaffId = $student->application_staff_id;
+        $originalStatus = $student->status;
+        
         $student->update($studentData);
 
         // Send notifications for assignments and status changes
-        if (isset($studentData['counselor_id']) && $studentData['counselor_id'] != $student->counselor_id) {
+        if (isset($studentData['counselor_id']) && $studentData['counselor_id'] != $originalCounselorId) {
             $counselor = User::find($studentData['counselor_id']);
             if ($counselor) {
                 NotificationService::notifyStudentAssigned($student, $counselor, $user);
             }
         }
         
-        if (isset($studentData['application_staff_id']) && $studentData['application_staff_id'] != $student->application_staff_id) {
+        if (isset($studentData['application_staff_id']) && $studentData['application_staff_id'] != $originalApplicationStaffId) {
             $appStaff = User::find($studentData['application_staff_id']);
             if ($appStaff) {
                 NotificationService::notifyAssignmentByRole($student, $appStaff, $user, 'application');
             }
         }
         
-        if (isset($studentData['status']) && $studentData['status'] != $student->status) {
-            NotificationService::notifyStatusChanged($student, $student->status, $studentData['status'], $user);
+        if (isset($studentData['status']) && $studentData['status'] != $originalStatus) {
+            NotificationService::notifyStatusChanged($student, $originalStatus, $studentData['status'], $user);
         }
 
         // Redirect based on user role
