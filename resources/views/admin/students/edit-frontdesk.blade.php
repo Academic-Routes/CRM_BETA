@@ -76,12 +76,16 @@
                         <div class="row gy-3">
                             <div class="col-md-6">
                                 <label for="status" class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Status</label>
-                                <select name="status" class="form-control form-select" id="status">
+                                <select name="status" class="form-control form-select" id="status" required>
                                     <option value="New" {{ $student->status == 'New' ? 'selected' : '' }}>New</option>
                                     <option value="Assigned to Counselor" {{ $student->status == 'Assigned to Counselor' ? 'selected' : '' }}>Assigned to Counselor</option>
                                     <option value="Documents Pending" {{ $student->status == 'Documents Pending' ? 'selected' : '' }}>Documents Pending</option>
                                     <option value="Documents Completed" {{ $student->status == 'Documents Completed' ? 'selected' : '' }}>Documents Completed</option>
+                                    <option value="Sent to Application" {{ $student->status == 'Sent to Application' ? 'selected' : '' }}>Sent to Application</option>
+                                    <option value="Application In Review" {{ $student->status == 'Application In Review' ? 'selected' : '' }}>Application In Review</option>
+                                    <option value="Completed" {{ $student->status == 'Completed' ? 'selected' : '' }}>Completed</option>
                                     <option value="On Hold" {{ $student->status == 'On Hold' ? 'selected' : '' }}>On Hold</option>
+                                    <option value="Rejected" {{ $student->status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                                 </select>
                             </div>
                             <div class="col-md-6">

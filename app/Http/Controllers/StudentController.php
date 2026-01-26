@@ -266,6 +266,11 @@ class StudentController extends Controller
             $request->validate([
                 'status' => 'required|string',
             ]);
+        } elseif ($user->hasRole('FrontDesk')) {
+            $request->validate([
+                'status' => 'required|string',
+                'counselor_id' => 'nullable|exists:users,id',
+            ]);
         } else {
             $request->validate([
                 'name' => 'required|string|max:255',
@@ -275,6 +280,8 @@ class StudentController extends Controller
 
         // Prepare data for student update
         if ($user->hasRole('Application')) {
+            $studentData = [];
+        } elseif ($user->hasRole('FrontDesk')) {
             $studentData = [];
         } else {
             $studentData = [
