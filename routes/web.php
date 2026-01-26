@@ -40,5 +40,25 @@ Route::middleware('web')->group(function () {
         Route::get('/notifications/count', [NotificationController::class, 'getUnreadCount'])->name('notifications.count');
         Route::get('/notifications/latest', [NotificationController::class, 'getLatest'])->name('notifications.latest');
         Route::get('/notifications/stream', [NotificationController::class, 'stream'])->name('notifications.stream');
+        
+        // Storage link route (remove after running once)
+        Route::get('/storage-link', function() {
+            if (!file_exists(public_path('storage'))) {
+                app('files')->link(
+                    storage_path('app/public'), public_path('storage')
+                );
+                return 'Storage link created successfully!';
+            }
+            return 'Storage link already exists!';
+        });
+        
+        // Fallback route to serve storage files
+        Route::get('/storage/{path}', function($path) {
+            $file = storage_path('app/public/' . $path);
+            if (file_exists($file)) {
+                return response()->file($file);
+            }
+            abort(404);
+        })->where('path', '.*');
     });
 });

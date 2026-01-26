@@ -33,7 +33,7 @@
                             <div class="col-12 text-center mb-4">
                                 <div class="d-flex flex-column align-items-center">
                                     @if(auth()->user()->profile_picture)
-                                        <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}" alt="{{ auth()->user()->name }}" class="w-120-px h-120-px object-fit-cover rounded-circle mb-3 border border-3 border-primary">
+                                        <img src="{{ auth()->user()->profile_picture_url ?: asset('storage/' . auth()->user()->profile_picture) }}" alt="{{ auth()->user()->name }}" class="w-120-px h-120-px object-fit-cover rounded-circle mb-3 border border-3 border-primary">
                                         <div class="d-flex gap-2">
                                             <label for="profile_picture" class="btn btn-primary-600 btn-sm">
                                                 <i class="ri-camera-line"></i> Change Photo

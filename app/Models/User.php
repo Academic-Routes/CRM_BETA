@@ -65,4 +65,18 @@ class User extends Authenticatable
         
         return in_array($this->role->name, ['Super Admin', 'Admin', 'Supervisor']);
     }
+
+    public function getProfilePictureUrlAttribute()
+    {
+        if (!$this->profile_picture) {
+            return null;
+        }
+        
+        // Try storage URL first, fallback to direct route
+        if (file_exists(public_path('storage/' . $this->profile_picture))) {
+            return asset('storage/' . $this->profile_picture);
+        }
+        
+        return url('/storage/' . $this->profile_picture);
+    }
 }
