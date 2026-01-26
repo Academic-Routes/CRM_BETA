@@ -425,7 +425,7 @@
             </div>
 
             <!-- Status Management -->
-            @if(auth()->user()->canManageRoles() || (auth()->user()->hasRole('Counselor') && ($student->counselor_id == auth()->id() || $student->created_by == auth()->id()) && !in_array($student->status, ['Sent to Application', 'Application In Review', 'Completed'])))
+            @if(auth()->user()->canManageRoles() || (auth()->user()->hasRole('Counselor') && ($student->counselor_id == auth()->id() || $student->created_by == auth()->id()) && !in_array($student->status, ['Sent to Application', 'Application In Review', 'Completed'])) || (auth()->user()->hasRole('FrontDesk') && $student->created_by == auth()->id() && !in_array($student->status, ['Sent to Application', 'Application In Review', 'Completed']))))
             <div class="col-lg-12">
                 <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
                     <div class="card-header border-bottom bg-base py-16 px-24">
@@ -448,12 +448,15 @@
                                         <option value="On Hold" {{ $student->status == 'On Hold' ? 'selected' : '' }}>On Hold</option>
                                         <option value="Rejected" {{ $student->status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                                     @else
-                                        {{-- Counselor can only access limited statuses --}}
+                                        {{-- Counselor/FrontDesk can only access limited statuses --}}
                                         <option value="Assigned to Counselor" {{ $student->status == 'Assigned to Counselor' ? 'selected' : '' }}>Assigned to Counselor</option>
                                         <option value="Documents Pending" {{ $student->status == 'Documents Pending' ? 'selected' : '' }}>Documents Pending</option>
                                         <option value="Documents Completed" {{ $student->status == 'Documents Completed' ? 'selected' : '' }}>Documents Completed</option>
                                         <option value="Sent to Application" {{ $student->status == 'Sent to Application' ? 'selected' : '' }}>Sent to Application</option>
                                         <option value="On Hold" {{ $student->status == 'On Hold' ? 'selected' : '' }}>On Hold</option>
+                                        @if($student->status == 'New')
+                                            <option value="New" selected>New</option>
+                                        @endif
                                     @endif
                                 </select>
                             </div>

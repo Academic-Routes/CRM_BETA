@@ -25,6 +25,12 @@ class StudentController extends Controller
                              ->orderBy('created_at', 'desc')
                              ->paginate(10);
             return view('admin.students.index', compact('students'));
+        } elseif ($user->hasRole('FrontDesk')) {
+            // FrontDesk sees all students
+            $students = Student::with(['counselor', 'applicationStaff'])
+                             ->orderBy('created_at', 'desc')
+                             ->paginate(10);
+            return view('admin.students.index', compact('students'));
         } elseif ($user->hasRole('Application')) {
             $students = Student::with(['counselor', 'applicationStaff'])
                              ->whereIn('status', ['Sent to Application', 'Application In Review'])
@@ -110,8 +116,8 @@ class StudentController extends Controller
     {
         $user = Auth::user();
         
-        // Counselors and Admins/Supervisors can create students
-        if (!$user->hasRole('Counselor') && !$user->canManageRoles()) {
+        // Counselors, FrontDesk and Admins/Supervisors can create students
+        if (!$user->hasRole('Counselor') && !$user->hasRole('FrontDesk') && !$user->canManageRoles()) {
             abort(403);
         }
         
@@ -122,8 +128,8 @@ class StudentController extends Controller
     {
         $user = Auth::user();
         
-        // Counselors and Admins/Supervisors can create students
-        if (!$user->hasRole('Counselor') && !$user->canManageRoles()) {
+        // Counselors, FrontDesk and Admins/Supervisors can create students
+        if (!$user->hasRole('Counselor') && !$user->hasRole('FrontDesk') && !$user->canManageRoles()) {
             abort(403);
         }
 
@@ -153,7 +159,7 @@ class StudentController extends Controller
             'created_by' => $user->id,
         ];
         
-        // Auto-assign to counselor if created by counselor
+        // Auto-assign to counselor if created by counselor, FrontDesk creates with New status
         if ($user->hasRole('Counselor')) {
             $studentData['counselor_id'] = $user->id;
             $studentData['status'] = 'Assigned to Counselor';
@@ -213,15 +219,23 @@ class StudentController extends Controller
     {
         $user = Auth::user();
         
-        // Check if counselor can edit (not if sent to application)
-        if ($user->hasRole('Counselor')) {
+        // Check if counselor/frontdesk can edit
+        if ($user->hasRole('Counselor') || $user->hasRole('FrontDesk')) {
             if (in_array($student->status, ['Sent to Application', 'Application In Review', 'Completed'])) {
                 return redirect()->route('students.show', $student)
                                ->with('info', 'You can only view this student as it has been sent to application.');
             }
             
-            if ($student->counselor_id !== $user->id && $student->created_by !== $user->id) {
+            if ($user->hasRole('Counselor') && $student->counselor_id !== $user->id && $student->created_by !== $user->id) {
                 abort(403);
+            }
+            
+            // FrontDesk gets special edit view for status management only
+            if ($user->hasRole('FrontDesk')) {
+                $counselors = User::whereHas('role', function($q) {
+                    $q->where('name', 'Counselor');
+                })->get();
+                return view('admin.students.edit-frontdesk', compact('student', 'counselors'));
             }
         } elseif ($user->hasRole('Application')) {
             // Application users can only edit status management
@@ -242,8 +256,8 @@ class StudentController extends Controller
     {
         $user = Auth::user();
         
-        // Admins/Supervisors can update any student, Counselors can update their own (but not if sent to application)
-        if (!$user->canManageRoles() && !$user->hasRole('Application') && (!$user->hasRole('Counselor') || $student->counselor_id !== $user->id || $student->status === 'Sent to Application')) {
+        // Admins/Supervisors can update any student, Counselors/FrontDesk can update their own
+        if (!$user->canManageRoles() && !$user->hasRole('Application') && !$user->hasRole('Counselor') && !$user->hasRole('FrontDesk')) {
             abort(403);
         }
 
@@ -260,24 +274,28 @@ class StudentController extends Controller
         }
 
         // Prepare data for student update
-        $studentData = [
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'email' => $request->email,
-            'gender' => $request->gender,
-            'date_of_birth' => $request->date_of_birth,
-            'address' => $request->address,
-            'last_qualification' => $request->last_qualification,
-            'other_qualification' => $request->other_qualification,
-            'last_score' => $request->last_score,
-            'passed_year' => $request->passed_year,
-            'interested_country' => $request->interested_country,
-            'interested_course' => $request->interested_course,
-            'interested_university' => $request->interested_university,
-            'english_test' => $request->english_test,
-            'other_english_test' => $request->other_english_test,
-            'english_test_score' => $request->english_test_score,
-        ];
+        if ($user->hasRole('Application')) {
+            $studentData = [];
+        } else {
+            $studentData = [
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'email' => $request->email,
+                'gender' => $request->gender,
+                'date_of_birth' => $request->date_of_birth,
+                'address' => $request->address,
+                'last_qualification' => $request->last_qualification,
+                'other_qualification' => $request->other_qualification,
+                'last_score' => $request->last_score,
+                'passed_year' => $request->passed_year,
+                'interested_country' => $request->interested_country,
+                'interested_course' => $request->interested_course,
+                'interested_university' => $request->interested_university,
+                'english_test' => $request->english_test,
+                'other_english_test' => $request->other_english_test,
+                'english_test_score' => $request->english_test_score,
+            ];
+        }
 
         // Admins can update status and assignments, Counselors can update status and application_staff_id
         if ($user->canManageRoles()) {
@@ -290,13 +308,17 @@ class StudentController extends Controller
             if ($request->has('application_staff_id')) {
                 $studentData['application_staff_id'] = $request->application_staff_id;
             }
-        } elseif ($user->hasRole('Counselor')) {
-            // Counselors can update status and assign to application staff
+        } elseif ($user->hasRole('Counselor') || $user->hasRole('FrontDesk')) {
+            // Counselors and FrontDesk can update status and assign to application staff
             if ($request->has('status')) {
                 $studentData['status'] = $request->status;
             }
             if ($request->has('application_staff_id')) {
                 $studentData['application_staff_id'] = $request->application_staff_id;
+            }
+            // Both Counselors and FrontDesk can assign counselors
+            if ($request->has('counselor_id')) {
+                $studentData['counselor_id'] = $request->counselor_id;
             }
         } elseif ($user->hasRole('Application')) {
             // Application users can only update status - skip other fields

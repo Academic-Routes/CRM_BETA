@@ -21,8 +21,8 @@
         </li>
         
         @if(auth()->check())
-          @if(auth()->user()->hasRole('Counselor'))
-            {{-- Counselor Menu --}}
+          @if(auth()->user()->hasRole('Counselor') || auth()->user()->hasRole('FrontDesk'))
+            {{-- Counselor/FrontDesk Menu --}}
             <li>
               <a href="{{ route('students.index') }}">
                 <iconify-icon icon="solar:users-group-two-rounded-outline" class="menu-icon"></iconify-icon>

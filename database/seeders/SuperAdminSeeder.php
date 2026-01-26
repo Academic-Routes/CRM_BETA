@@ -41,6 +41,12 @@ class SuperAdminSeeder extends Seeder
                 'email' => 'application@crm.com',
                 'password' => 'password123',
                 'role' => 'Application'
+            ],
+            [
+                'name' => 'FrontDesk User',
+                'email' => 'frontdesk@crm.com',
+                'password' => 'password123',
+                'role' => 'FrontDesk'
             ]
         ];
 

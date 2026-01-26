@@ -6,7 +6,7 @@
 <div class="dashboard-body">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4>Students</h4>
-        @if(auth()->user()->hasRole('Counselor') || auth()->user()->canManageRoles())
+        @if(auth()->user()->hasRole('Counselor') || auth()->user()->hasRole('FrontDesk') || auth()->user()->canManageRoles())
             <a href="{{ route('students.create') }}" class="btn btn-primary-600 d-flex align-items-center gap-6">
                 <span class="d-flex text-md">
                     <i class="ri-add-large-line"></i>
@@ -61,7 +61,7 @@
                             <td>
                                 <a href="{{ route('students.show', $student) }}" class="btn btn-sm btn-outline-info">View</a>
                                 
-                                @if(auth()->user()->canManageRoles() || (auth()->user()->hasRole('Counselor') && $student->counselor_id === auth()->id()))
+                                @if(auth()->user()->canManageRoles() || (auth()->user()->hasRole('Counselor') && $student->counselor_id === auth()->id()) || auth()->user()->hasRole('FrontDesk'))
                                     <a href="{{ route('students.edit', $student) }}" class="btn btn-sm btn-outline-primary">Edit</a>
                                 @endif
                                 
