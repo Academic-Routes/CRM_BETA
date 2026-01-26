@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\Department;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -207,6 +208,11 @@ class StudentController extends Controller
 
         Student::create($studentData);
         
+        // Send notification when FrontDesk adds a student
+        if ($user->hasRole('FrontDesk')) {
+            NotificationService::notifyStudentAdded(Student::latest()->first(), $user);
+        }
+        
         return redirect()->route('students.index')->with('success', 'Student created successfully!');
     }
 
@@ -372,6 +378,25 @@ class StudentController extends Controller
         }
 
         $student->update($studentData);
+
+        // Send notifications for assignments and status changes
+        if (isset($studentData['counselor_id']) && $studentData['counselor_id'] != $student->counselor_id) {
+            $counselor = User::find($studentData['counselor_id']);
+            if ($counselor) {
+                NotificationService::notifyStudentAssigned($student, $counselor, $user);
+            }
+        }
+        
+        if (isset($studentData['application_staff_id']) && $studentData['application_staff_id'] != $student->application_staff_id) {
+            $appStaff = User::find($studentData['application_staff_id']);
+            if ($appStaff) {
+                NotificationService::notifyAssignmentByRole($student, $appStaff, $user, 'application');
+            }
+        }
+        
+        if (isset($studentData['status']) && $studentData['status'] != $student->status) {
+            NotificationService::notifyStatusChanged($student, $student->status, $studentData['status'], $user);
+        }
 
         // Redirect based on user role
         if ($user->hasRole('Application')) {

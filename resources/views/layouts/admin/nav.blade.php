@@ -13,8 +13,9 @@
     </div>
     <div class="col-auto">
       <div class="d-flex flex-wrap align-items-center gap-3">
-        <button type="button" class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center">
+        <button type="button" class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center position-relative" id="notificationBtn">
           <iconify-icon icon="iconamoon:notification-light" class="text-primary-light text-xl"></iconify-icon>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationCount" style="display: none;">0</span>
         </button>
         <div class="dropdown">
           <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
@@ -36,6 +37,11 @@
               </div>
             </div>
             <ul class="to-top-list">
+              <li>
+                <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="{{ route('notifications.index') }}">
+                  <iconify-icon icon="iconamoon:notification" class="icon text-xl"></iconify-icon> Notifications
+                </a>
+              </li>
               <li>
                 <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3" href="{{ route('profile') }}">
                   <iconify-icon icon="solar:user-linear" class="icon text-xl"></iconify-icon> My Profile
