@@ -28,5 +28,7 @@ Route::middleware('web')->group(function () {
         Route::get('students/{student}/download/{file}', [StudentController::class, 'download'])->name('students.download');
         
         Route::resource('users', UserController::class);
+        Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+        Route::post('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
     });
 });

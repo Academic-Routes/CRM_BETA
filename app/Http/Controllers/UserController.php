@@ -8,6 +8,7 @@ use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -142,5 +143,48 @@ class UserController extends Controller
 
         $user->delete();
         return redirect()->route('users.index')->with('success', 'User deleted successfully');
+    }
+
+    public function profile()
+    {
+        return view('admin.users.profile');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+        
+        $rules = [
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ];
+        
+        // Add password validation if password fields are provided
+        if ($request->filled('current_password') || $request->filled('new_password')) {
+            $rules['current_password'] = 'required';
+            $rules['new_password'] = 'required|min:8|confirmed';
+        }
+        
+        $request->validate($rules);
+
+        $updateData = [];
+
+        // Handle profile picture upload
+        if ($request->hasFile('profile_picture')) {
+            $updateData['profile_picture'] = $request->file('profile_picture')->store('profile-pictures', 'public');
+        }
+        
+        // Handle password change
+        if ($request->filled('current_password') && $request->filled('new_password')) {
+            if (!Hash::check($request->current_password, $user->password)) {
+                return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+            }
+            $updateData['password'] = Hash::make($request->new_password);
+        }
+
+        if (!empty($updateData)) {
+            $user->update($updateData);
+        }
+
+        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
     }
 }
