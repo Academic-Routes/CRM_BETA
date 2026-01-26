@@ -187,4 +187,16 @@ class UserController extends Controller
 
         return redirect()->route('profile')->with('success', 'Profile updated successfully!');
     }
+
+    public function removeProfilePicture()
+    {
+        $user = Auth::user();
+        
+        if ($user->profile_picture) {
+            Storage::disk('public')->delete($user->profile_picture);
+            $user->update(['profile_picture' => null]);
+        }
+        
+        return response()->json(['success' => true]);
+    }
 }

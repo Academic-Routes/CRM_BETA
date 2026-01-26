@@ -34,14 +34,22 @@
                                 <div class="d-flex flex-column align-items-center">
                                     @if(auth()->user()->profile_picture)
                                         <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}" alt="{{ auth()->user()->name }}" class="w-120-px h-120-px object-fit-cover rounded-circle mb-3 border border-3 border-primary">
+                                        <div class="d-flex gap-2">
+                                            <label for="profile_picture" class="btn btn-primary-600 btn-sm">
+                                                <i class="ri-camera-line"></i> Change Photo
+                                            </label>
+                                            <button type="button" class="btn btn-danger-600 btn-sm" onclick="removeProfilePicture()">
+                                                <i class="ri-delete-bin-line"></i> Remove
+                                            </button>
+                                        </div>
                                     @else
                                         <div class="w-120-px h-120-px bg-primary text-white rounded-circle d-flex justify-content-center align-items-center fw-bold mb-3 border border-3 border-primary" style="font-size: 3rem;">
                                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                         </div>
+                                        <label for="profile_picture" class="btn btn-primary-600 btn-sm">
+                                            <i class="ri-camera-line"></i> Change Photo
+                                        </label>
                                     @endif
-                                    <label for="profile_picture" class="btn btn-primary-600 btn-sm">
-                                        <i class="ri-camera-line"></i> Change Photo
-                                    </label>
                                     <input type="file" name="profile_picture" id="profile_picture" class="d-none" accept="image/*">
                                 </div>
                             </div>
@@ -137,5 +145,24 @@ document.getElementById('profile_picture').addEventListener('change', function(e
         reader.readAsDataURL(file);
     }
 });
+
+function removeProfilePicture() {
+    if (confirm('Are you sure you want to remove your profile picture?')) {
+        fetch('/profile/picture', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+}
 </script>
 @endsection

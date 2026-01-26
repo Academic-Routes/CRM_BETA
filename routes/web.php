@@ -31,6 +31,7 @@ Route::middleware('web')->group(function () {
         Route::resource('users', UserController::class);
         Route::get('/profile', [UserController::class, 'profile'])->name('profile');
         Route::post('/profile', [UserController::class, 'updateProfile'])->name('profile.update');
+        Route::delete('/profile/picture', [UserController::class, 'removeProfilePicture'])->name('profile.remove-picture');
         
         // Notification routes
         Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
