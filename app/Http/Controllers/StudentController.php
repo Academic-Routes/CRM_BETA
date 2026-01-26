@@ -99,8 +99,8 @@ class StudentController extends Controller
                 ->where('status', 'Completed')
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
-        } elseif ($user->hasRole('Application') || $user->canManageRoles()) {
-            // Show all completed applications for Application staff and Admins
+        } elseif ($user->hasRole('Application') || $user->hasRole('FrontDesk') || $user->canManageRoles()) {
+            // Show all completed applications for Application staff, FrontDesk and Admins
             $students = Student::with(['counselor', 'applicationStaff'])
                 ->where('status', 'Completed')
                 ->orderBy('created_at', 'desc')
