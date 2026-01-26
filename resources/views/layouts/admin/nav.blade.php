@@ -20,7 +20,7 @@
         <div class="dropdown">
           <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
             @if(auth()->user()->profile_picture)
-              <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}" alt="{{ auth()->user()->name }}" class="w-40-px h-40-px object-fit-cover rounded-circle">
+              <img src="{{ auth()->user()->profile_picture_url }}" alt="{{ auth()->user()->name }}" class="w-40-px h-40-px object-fit-cover rounded-circle">
             @else
               <div class="w-40-px h-40-px bg-primary text-white rounded-circle d-flex justify-content-center align-items-center fw-bold">
                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}

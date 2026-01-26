@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\FileController;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -53,12 +54,6 @@ Route::middleware('web')->group(function () {
         });
         
         // Fallback route to serve storage files
-        Route::get('/storage/{path}', function($path) {
-            $file = storage_path('app/public/' . $path);
-            if (file_exists($file)) {
-                return response()->file($file);
-            }
-            abort(404);
-        })->where('path', '.*');
+        Route::get('/storage/{path}', [FileController::class, 'serveFile'])->where('path', '.*');
     });
 });
