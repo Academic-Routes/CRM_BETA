@@ -46,14 +46,22 @@ class NotificationController extends Controller
         $user = Auth::user();
         $lastNotificationId = request('lastId', 0);
         
+        // If no lastId provided, get the latest notification ID to prevent showing old ones
+        if ($lastNotificationId == 0) {
+            $latestNotification = $user->notifications()->latest()->first();
+            $lastNotificationId = $latestNotification ? $latestNotification->id : 0;
+        }
+        
         return response()->stream(function() use ($user, $lastNotificationId) {
             echo "data: " . json_encode(['type' => 'connected']) . "\n\n";
             ob_flush();
             flush();
             
+            $currentLastId = $lastNotificationId;
+            
             while (true) {
                 $notifications = $user->notifications()
-                    ->where('id', '>', $lastNotificationId)
+                    ->where('id', '>', $currentLastId)
                     ->orderBy('created_at', 'desc')
                     ->get();
                     
@@ -66,7 +74,7 @@ class NotificationController extends Controller
                             'message' => $notification->message,
                             'created_at' => $notification->created_at->diffForHumans()
                         ]) . "\n\n";
-                        $lastNotificationId = $notification->id;
+                        $currentLastId = $notification->id;
                     }
                     ob_flush();
                     flush();

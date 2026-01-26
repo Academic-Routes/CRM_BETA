@@ -31,6 +31,8 @@
     let lastNotificationId = 0;
 
     function initializeNotifications() {
+        // Get the last notification ID from localStorage or server
+        lastNotificationId = localStorage.getItem('lastNotificationId') || 0;
         updateNotificationCount();
         startSSE();
     }
@@ -47,6 +49,7 @@
             
             if (data.type === 'notification') {
                 lastNotificationId = data.id;
+                localStorage.setItem('lastNotificationId', lastNotificationId);
                 updateNotificationCount();
                 showNotificationToast(data);
             }
