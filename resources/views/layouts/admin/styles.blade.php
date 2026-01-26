@@ -1,6 +1,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="description" content="Modern Education Admin Dashboard for schools, colleges, universities, and eLearning platforms. Includes student and course management, attendance, exams, payments, analytics, and a fully responsive clean UI—ideal for LMS, coaching centers, and academic admin systems.">
-<meta name="keywords" content="Education Admin Dashboard, School Admin Panel, College Dashboard, University Dashboard, LMS Dashboard, eLearning Admin Template, Student Management System, Course Management, Education Template, Study Dashboard, Online Learning Dashboard, Academic Admin Panel, Bootstrap Dashboard, React Education Dashboard, Next.js Education Template">
+<meta name="description" content="Techroutes101 CRM - Acedemic Routes">
+<meta name="keywords" content="Techroutes101 CRM - Acedemic Routes">
 <meta name="robots" content="INDEX,FOLLOW">
 <link rel="icon" type="image/png" href="/admin/assets/images/favicon.png" sizes="16x16">
 <!-- remix icon font css -->
