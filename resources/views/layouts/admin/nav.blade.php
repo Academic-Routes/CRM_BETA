@@ -18,13 +18,21 @@
         </button>
         <div class="dropdown">
           <button class="d-flex justify-content-center align-items-center rounded-circle" type="button" data-bs-toggle="dropdown">
-            <img src="/admin/assets/images/user.png" alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
+            @if(auth()->user()->profile_picture)
+              <img src="{{ asset('storage/' . auth()->user()->profile_picture) }}" alt="{{ auth()->user()->name }}" class="w-40-px h-40-px object-fit-cover rounded-circle">
+            @else
+              <div class="w-40-px h-40-px bg-primary text-white rounded-circle d-flex justify-content-center align-items-center fw-bold">
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+              </div>
+            @endif
           </button>
           <div class="dropdown-menu to-top dropdown-menu-sm">
             <div class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
               <div>
-                <h6 class="text-lg text-primary-light fw-semibold mb-2">Admin User</h6>
-                <span class="text-secondary-light fw-medium text-sm">admin@example.com</span>
+                <h6 class="text-lg text-primary-light fw-semibold mb-2">{{ auth()->user()->name }}</h6>
+                <span class="text-secondary-light fw-medium text-sm">{{ auth()->user()->email }}</span>
+                <br>
+                <span class="text-primary fw-medium text-xs">{{ auth()->user()->role ? auth()->user()->role->name : 'No Role' }}</span>
               </div>
             </div>
             <ul class="to-top-list">
