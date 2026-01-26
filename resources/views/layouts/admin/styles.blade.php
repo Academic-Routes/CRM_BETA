@@ -19,3 +19,16 @@
 <link rel="stylesheet" href="/admin/assets/css/lib/calendar.css">
 <!-- main css -->
 <link rel="stylesheet" href="/admin/assets/css/style.css">
+
+<style>
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+.toast-header { font-weight: bold; margin-bottom: 5px; color: #333; }
+.toast-body { font-size: 14px; color: #666; }
+</style>

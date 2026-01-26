@@ -40,4 +40,44 @@ class NotificationController extends Controller
         $notifications = Auth::user()->notifications()->limit(5)->get();
         return response()->json($notifications);
     }
+
+    public function stream()
+    {
+        $user = Auth::user();
+        $lastNotificationId = request('lastId', 0);
+        
+        return response()->stream(function() use ($user, $lastNotificationId) {
+            echo "data: " . json_encode(['type' => 'connected']) . "\n\n";
+            ob_flush();
+            flush();
+            
+            while (true) {
+                $notifications = $user->notifications()
+                    ->where('id', '>', $lastNotificationId)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                    
+                if ($notifications->count() > 0) {
+                    foreach ($notifications as $notification) {
+                        echo "data: " . json_encode([
+                            'type' => 'notification',
+                            'id' => $notification->id,
+                            'title' => $notification->title,
+                            'message' => $notification->message,
+                            'created_at' => $notification->created_at->diffForHumans()
+                        ]) . "\n\n";
+                        $lastNotificationId = $notification->id;
+                    }
+                    ob_flush();
+                    flush();
+                }
+                
+                sleep(2);
+            }
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+        ]);
+    }
 }

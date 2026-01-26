@@ -38,5 +38,6 @@ Route::middleware('web')->group(function () {
         Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
         Route::get('/notifications/count', [NotificationController::class, 'getUnreadCount'])->name('notifications.count');
         Route::get('/notifications/latest', [NotificationController::class, 'getLatest'])->name('notifications.latest');
+        Route::get('/notifications/stream', [NotificationController::class, 'stream'])->name('notifications.stream');
     });
 });

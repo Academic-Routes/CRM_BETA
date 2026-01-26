@@ -27,7 +27,36 @@
     @include('layouts.admin.scripts')
     
     <script>
-    // Update notification count on page load and periodically
+    let eventSource;
+    let lastNotificationId = 0;
+
+    function initializeNotifications() {
+        updateNotificationCount();
+        startSSE();
+    }
+
+    function startSSE() {
+        if (eventSource) {
+            eventSource.close();
+        }
+        
+        eventSource = new EventSource(`/notifications/stream?lastId=${lastNotificationId}`);
+        
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            
+            if (data.type === 'notification') {
+                lastNotificationId = data.id;
+                updateNotificationCount();
+                showNotificationToast(data);
+            }
+        };
+        
+        eventSource.onerror = function() {
+            setTimeout(startSSE, 5000);
+        };
+    }
+
     function updateNotificationCount() {
         fetch('/notifications/count')
             .then(response => response.json())
@@ -42,14 +71,37 @@
             })
             .catch(error => console.log('Error fetching notification count:', error));
     }
+
+    function showNotificationToast(notification) {
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast';
+        toast.innerHTML = `
+            <div class="toast-header">${notification.title}</div>
+            <div class="toast-body">${notification.message}</div>
+        `;
+        toast.style.cssText = `
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            background: #fff; border: 1px solid #ddd; border-radius: 5px;
+            padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 300px; animation: slideIn 0.3s ease;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 5000);
+    }
     
-    // Update count on page load
-    document.addEventListener('DOMContentLoaded', updateNotificationCount);
+    document.addEventListener('DOMContentLoaded', initializeNotifications);
     
-    // Update count every 30 seconds
-    setInterval(updateNotificationCount, 30000);
+    window.addEventListener('beforeunload', function() {
+        if (eventSource) {
+            eventSource.close();
+        }
+    });
     
-    // Add click handler for notification button
     document.addEventListener('DOMContentLoaded', function() {
         const notificationBtn = document.getElementById('notificationBtn');
         if (notificationBtn) {

@@ -206,11 +206,11 @@ class StudentController extends Controller
         $studentData['bachelor_other_name'] = $request->bachelor_other_name;
         $studentData['masters_other_name'] = $request->masters_other_name;
 
-        Student::create($studentData);
+        $student = Student::create($studentData);
         
-        // Send notification when FrontDesk adds a student
-        if ($user->hasRole('FrontDesk')) {
-            NotificationService::notifyStudentAdded(Student::latest()->first(), $user);
+        // Send notification when student is added (except when counselor creates for themselves)
+        if (!$user->hasRole('Counselor')) {
+            NotificationService::notifyStudentAdded($student, $user);
         }
         
         return redirect()->route('students.index')->with('success', 'Student created successfully!');

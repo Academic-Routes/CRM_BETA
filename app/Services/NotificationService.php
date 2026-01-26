@@ -27,6 +27,7 @@ class NotificationService
 
     public static function notifyStudentAssigned($student, $counselor, $fromUser)
     {
+        // Notify the assigned counselor
         Notification::createNotification(
             'student_assigned',
             'Student Assigned',
@@ -35,6 +36,22 @@ class NotificationService
             $fromUser->id,
             ['student_id' => $student->id]
         );
+        
+        // Also notify Admin, Supervisor, Super Admin about the assignment
+        $managementUsers = User::whereHas('role', function($query) {
+            $query->whereIn('name', ['Super Admin', 'Admin', 'Supervisor']);
+        })->where('id', '!=', $fromUser->id)->get();
+        
+        foreach ($managementUsers as $recipient) {
+            Notification::createNotification(
+                'student_assigned_info',
+                'Student Assignment Update',
+                "Student '{$student->name}' has been assigned to {$counselor->name} by {$fromUser->name}",
+                $recipient->id,
+                $fromUser->id,
+                ['student_id' => $student->id, 'counselor_id' => $counselor->id]
+            );
+        }
     }
 
     public static function notifyStatusChanged($student, $oldStatus, $newStatus, $fromUser)
