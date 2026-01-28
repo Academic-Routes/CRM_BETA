@@ -79,6 +79,18 @@ class DashboardController extends Controller
                                 ->limit(5)
                                 ->get(),
             'recentNotifications' => $user->notifications()->select('id', 'title', 'message', 'is_read', 'created_at')->limit(5)->get(),
+            'topCounselors' => User::whereHas('role', function($q) { $q->where('name', 'Counselor'); })
+                                ->select('id', 'name')
+                                ->withCount('students')
+                                ->orderBy('students_count', 'desc')
+                                ->limit(5)
+                                ->get(),
+            'topApplicationStaff' => User::whereHas('role', function($q) { $q->where('name', 'Application'); })
+                                        ->select('id', 'name')
+                                        ->withCount('applicationStudents')
+                                        ->orderBy('application_students_count', 'desc')
+                                        ->limit(5)
+                                        ->get()
         ];
         
         return view('admin.dashboards.frontdesk', $data);
@@ -112,5 +124,26 @@ class DashboardController extends Controller
         ];
         
         return view('admin.dashboard', $data);
+    }
+    
+    public function staffStudents($staffId, $type)
+    {
+        $staff = User::findOrFail($staffId);
+        
+        if ($type === 'counselor') {
+            $students = Student::where('counselor_id', $staffId)
+                              ->with(['counselor:id,name'])
+                              ->paginate(15);
+            $title = "Students assigned to {$staff->name} (Counselor)";
+        } elseif ($type === 'application') {
+            $students = Student::where('application_staff_id', $staffId)
+                              ->with(['counselor:id,name'])
+                              ->paginate(15);
+            $title = "Students handled by {$staff->name} (Application Staff)";
+        } else {
+            abort(404);
+        }
+        
+        return view('admin.staff-students', compact('students', 'staff', 'title', 'type'));
     }
 }

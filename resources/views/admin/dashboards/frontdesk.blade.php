@@ -206,6 +206,98 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Top Counselors -->
+            <div class="col-xxl-6">
+                <div class="card radius-12 border-0">
+                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between py-12 px-20 border-bottom border-neutral-200">
+                        <h6 class="mb-2 fw-bold text-lg">Top Counselors</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table bordered-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Counselor</th>
+                                        <th>Students</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($topCounselors as $counselor)
+                                    <tr>
+                                        <td class="py-10-px">
+                                            <div class="d-flex align-items-center">
+                                                <div class="w-32-px h-32-px bg-primary-100 rounded-circle d-flex justify-content-center align-items-center me-12">
+                                                    {{ strtoupper(substr($counselor->name, 0, 1)) }}
+                                                </div>
+                                                <h6 class="text-md mb-0 fw-medium">{{ $counselor->name }}</h6>
+                                            </div>
+                                        </td>
+                                        <td class="py-10-px">
+                                            <span class="bg-primary-100 text-primary-600 px-16 py-4 radius-4 fw-medium text-sm">{{ $counselor->students_count }}</span>
+                                        </td>
+                                        <td class="py-10-px">
+                                            <a href="{{ route('staff.students', ['staffId' => $counselor->id, 'type' => 'counselor']) }}" class="btn btn-outline-primary btn-sm">View Students</a>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4">No counselors found</td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top Application Staff -->
+            <div class="col-xxl-6">
+                <div class="card radius-12 border-0">
+                    <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between py-12 px-20 border-bottom border-neutral-200">
+                        <h6 class="mb-2 fw-bold text-lg">Top Application Staff</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table bordered-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Staff Member</th>
+                                        <th>Applications</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($topApplicationStaff as $staff)
+                                    <tr>
+                                        <td class="py-10-px">
+                                            <div class="d-flex align-items-center">
+                                                <div class="w-32-px h-32-px bg-success-100 rounded-circle d-flex justify-content-center align-items-center me-12">
+                                                    {{ strtoupper(substr($staff->name, 0, 1)) }}
+                                                </div>
+                                                <h6 class="text-md mb-0 fw-medium">{{ $staff->name }}</h6>
+                                            </div>
+                                        </td>
+                                        <td class="py-10-px">
+                                            <span class="bg-success-100 text-success-600 px-16 py-4 radius-4 fw-medium text-sm">{{ $staff->application_students_count }}</span>
+                                        </td>
+                                        <td class="py-10-px">
+                                            <a href="{{ route('staff.students', ['staffId' => $staff->id, 'type' => 'application']) }}" class="btn btn-outline-success btn-sm">View Students</a>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4">No application staff found</td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -41,6 +41,9 @@ Route::middleware('web')->group(function () {
         Route::get('/notifications/latest', [NotificationController::class, 'getLatest'])->name('notifications.latest');
         Route::get('/notifications/stream', [NotificationController::class, 'stream'])->name('notifications.stream');
         
+        // Staff students route
+        Route::get('/staff/{staffId}/students/{type}', [DashboardController::class, 'staffStudents'])->name('staff.students');
+        
         // Storage link route (remove after running once)
         Route::get('/storage-link', function() {
             if (!file_exists(public_path('storage'))) {
