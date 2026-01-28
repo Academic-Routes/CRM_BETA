@@ -27,54 +27,30 @@
     @include('layouts.admin.scripts')
     
     <script>
-    let notificationInterval;
-    let lastNotificationCheck = Date.now();
+    let eventSource;
 
     function initializeNotifications() {
         updateNotificationCount();
-        startPolling();
+        startSSE();
     }
 
-    function startPolling() {
-        // Poll every 1 second for real-time notifications
-        notificationInterval = setInterval(() => {
-            checkForNewNotifications();
-        }, 1000);
-    }
-
-    function checkForNewNotifications() {
-        fetch('/notifications/poll', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                last_check: Math.floor(lastNotificationCheck / 1000)
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.count !== undefined) {
-                updateNotificationBadge(data.count);
-            }
+    function startSSE() {
+        eventSource = new EventSource('/notifications/stream');
+        
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
             
-            if (data.new_notifications && data.new_notifications.length > 0) {
-                data.new_notifications.forEach(notification => {
-                    showNotificationToast(notification);
-                });
-                lastNotificationCheck = Date.now();
+            if (data.type === 'notification') {
+                showNotificationToast(data);
+                updateNotificationCount();
             }
-        })
-        .catch(error => {
-            console.log('Notification check failed:', error);
-            // Continue polling even if there's an error
-        });
+        };
+        
+        eventSource.onerror = function(event) {
+            console.log('SSE connection error, reconnecting...');
+            eventSource.close();
+            setTimeout(startSSE, 3000);
+        };
     }
 
     function updateNotificationCount() {
@@ -115,12 +91,10 @@
         
         document.body.appendChild(toast);
         
-        // Slide in
         setTimeout(() => {
             toast.style.transform = 'translateX(0)';
         }, 100);
         
-        // Slide out after 4 seconds
         setTimeout(() => {
             toast.style.transform = 'translateX(100%)';
             setTimeout(() => toast.remove(), 300);
@@ -130,8 +104,8 @@
     document.addEventListener('DOMContentLoaded', initializeNotifications);
     
     window.addEventListener('beforeunload', function() {
-        if (notificationInterval) {
-            clearInterval(notificationInterval);
+        if (eventSource) {
+            eventSource.close();
         }
     });
     
