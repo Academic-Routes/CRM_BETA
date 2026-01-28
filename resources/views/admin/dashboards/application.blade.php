@@ -106,12 +106,6 @@
                                 </a>
                             </div>
                             <div class="col-12">
-                                <a href="{{ route('students.index') }}" class="btn btn-outline-primary w-100 d-flex align-items-center gap-2 py-12">
-                                    <iconify-icon icon="ph:list" class="text-lg"></iconify-icon>
-                                    All Students
-                                </a>
-                            </div>
-                            <div class="col-12">
                                 <a href="{{ route('notifications.index') }}" class="btn btn-warning-600 w-100 d-flex align-items-center gap-2 py-12">
                                     <iconify-icon icon="ph:bell" class="text-lg"></iconify-icon>
                                     View Notifications

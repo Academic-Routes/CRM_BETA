@@ -40,6 +40,10 @@
                                 <p class="text-secondary-light">{{ $student->email ?? 'N/A' }}</p>
                             </div>
                             <div class="col-md-3">
+                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Application Email</label>
+                                <input type="email" name="application_email" class="form-control" value="{{ $student->application_email }}" placeholder="Enter application email">
+                            </div>
+                            <div class="col-md-3">
                                 <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Counselor</label>
                                 <p class="text-secondary-light">{{ $student->counselor ? $student->counselor->name : 'Not Assigned' }}</p>
                             </div>
@@ -91,7 +95,7 @@
             <!-- Submit Buttons -->
             <div class="col-lg-12">
                 <div class="d-flex align-items-center justify-content-center gap-3">
-                    <button type="button" class="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8" onclick="window.history.back()">
+                    <button type="button" class="border border-danger-600 bg-hover-danger-200 text-danger-600 text-md px-56 py-11 radius-8" onclick="window.location.href='{{ route('students.sent-for-application') }}'">
                         Cancel
                     </button>
                     <button type="submit" class="btn btn-primary-600 text-md px-56 py-12 radius-8">

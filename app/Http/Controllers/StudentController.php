@@ -384,6 +384,9 @@ class StudentController extends Controller
             if ($request->has('status')) {
                 $studentData['status'] = $request->status;
             }
+            if ($request->has('application_email')) {
+                $studentData['application_email'] = $request->application_email;
+            }
         }
 
         // Handle file uploads (skip for Application users)

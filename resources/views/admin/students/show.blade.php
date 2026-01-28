@@ -76,7 +76,11 @@
             </div>
         </div>
         <div class="">
-            <a href="{{ route('students.index') }}" class="btn btn-primary-600">Back to Students</a>
+            @if(auth()->user()->hasRole('Application'))
+                <a href="{{ route('students.sent-for-application') }}" class="btn btn-primary-600">Back to Applications</a>
+            @else
+                <a href="{{ route('students.index') }}" class="btn btn-primary-600">Back to Students</a>
+            @endif
         </div>
     </div>
 
@@ -98,6 +102,11 @@
                         <div class="col-md-3">
                             <strong>Email:</strong> {{ $student->email ?? 'Not provided' }}
                         </div>
+                        @if($student->application_email)
+                        <div class="col-md-3">
+                            <strong>Application Email:</strong> {{ $student->application_email }}
+                        </div>
+                        @endif
                         <div class="col-md-3">
                             <strong>Gender:</strong> {{ $student->gender ?? 'Not provided' }}
                         </div>

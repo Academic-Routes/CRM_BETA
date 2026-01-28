@@ -14,6 +14,7 @@ class Student extends Model
         'name',
         'phone',
         'email',
+        'application_email',
         'gender',
         'date_of_birth',
         'address',
