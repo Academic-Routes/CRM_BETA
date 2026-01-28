@@ -106,6 +106,10 @@ class DashboardController extends Controller
                                     ->count(),
             'applicationsSent' => Student::whereIn('status', ['Sent to Application', 'Application In Review'])->count(),
             'completedApplications' => Student::where('status', 'Completed')->count(),
+            'newStudents' => Student::where('status', 'New')->count(),
+            'assignedToCounselor' => Student::where('status', 'Assigned to Counselor')->count(),
+            'rejectedStudents' => Student::where('status', 'Rejected')->count(),
+            'onHoldStudents' => Student::where('status', 'On Hold')->count(),
             'recentStudents' => Student::select('id', 'name', 'status', 'counselor_id', 'created_at')
                                 ->with(['counselor:id,name'])
                                 ->latest()

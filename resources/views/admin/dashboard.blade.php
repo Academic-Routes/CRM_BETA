@@ -139,23 +139,68 @@
 
             <!-- Status Distribution -->
             <div class="col-xxl-4">
-                <div class="card h-100">
+                <div class="card h-100 shadow-1 radius-12 border-0">
                     <div class="card-body p-0">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between px-20 py-16 border-bottom border-neutral-200">
-                            <h6 class="text-lg mb-0">Quick Stats</h6>
+                        <div class="d-flex flex-wrap align-items-center justify-content-between px-24 py-20 border-bottom border-neutral-100">
+                            <h6 class="text-lg mb-0 fw-bold text-primary-light">Quick Stats</h6>
+                            <div class="w-8-px h-8-px bg-primary-600 rounded-circle"></div>
                         </div>
-                        <div class="p-20">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <span class="text-neutral-600">New Students</span>
-                                <span class="fw-semibold text-primary-light">{{ $studentsThisMonth ?? 0 }}</span>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <span class="text-neutral-600">In Progress</span>
-                                <span class="fw-semibold text-primary-light">{{ $applicationsSent ?? 0 }}</span>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span class="text-neutral-600">Completed</span>
-                                <span class="fw-semibold text-primary-light">{{ $completedApplications ?? 0 }}</span>
+                        <div class="p-24">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="text-center p-16 bg-primary-50 radius-8 border border-primary-100">
+                                        <div class="w-32-px h-32-px bg-primary-600 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-8">
+                                            <iconify-icon icon="ph:user-plus" class="text-white text-lg"></iconify-icon>
+                                        </div>
+                                        <h5 class="mb-4 text-primary-600 fw-bold">{{ $newStudents ?? 0 }}</h5>
+                                        <span class="text-xs text-primary-600 fw-medium">New Students</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-16 bg-warning-50 radius-8 border border-warning-100">
+                                        <div class="w-32-px h-32-px bg-warning-600 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-8">
+                                            <iconify-icon icon="ph:user-check" class="text-white text-lg"></iconify-icon>
+                                        </div>
+                                        <h5 class="mb-4 text-warning-600 fw-bold">{{ $assignedToCounselor ?? 0 }}</h5>
+                                        <span class="text-xs text-warning-600 fw-medium">Assigned</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-16 bg-info-50 radius-8 border border-info-100">
+                                        <div class="w-32-px h-32-px bg-info-600 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-8">
+                                            <iconify-icon icon="ph:paper-plane-tilt" class="text-white text-lg"></iconify-icon>
+                                        </div>
+                                        <h5 class="mb-4 text-info-600 fw-bold">{{ $applicationsSent ?? 0 }}</h5>
+                                        <span class="text-xs text-info-600 fw-medium">Sent to App</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-16 bg-success-50 radius-8 border border-success-100">
+                                        <div class="w-32-px h-32-px bg-success-600 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-8">
+                                            <iconify-icon icon="ph:check-circle" class="text-white text-lg"></iconify-icon>
+                                        </div>
+                                        <h5 class="mb-4 text-success-600 fw-bold">{{ $completedApplications ?? 0 }}</h5>
+                                        <span class="text-xs text-success-600 fw-medium">Completed</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-16 bg-danger-50 radius-8 border border-danger-100">
+                                        <div class="w-32-px h-32-px bg-danger-600 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-8">
+                                            <iconify-icon icon="ph:x-circle" class="text-white text-lg"></iconify-icon>
+                                        </div>
+                                        <h5 class="mb-4 text-danger-600 fw-bold">{{ $rejectedStudents ?? 0 }}</h5>
+                                        <span class="text-xs text-danger-600 fw-medium">Rejected</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center p-16 bg-secondary-50 radius-8 border border-secondary-100">
+                                        <div class="w-32-px h-32-px bg-secondary-600 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-8">
+                                            <iconify-icon icon="ph:pause-circle" class="text-white text-lg"></iconify-icon>
+                                        </div>
+                                        <h5 class="mb-4 text-secondary-600 fw-bold">{{ $onHoldStudents ?? 0 }}</h5>
+                                        <span class="text-xs text-secondary-600 fw-medium">On Hold</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
