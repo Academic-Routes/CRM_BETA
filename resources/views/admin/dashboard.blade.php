@@ -237,6 +237,78 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Top Counselors -->
+            <div class="col-xxl-6">
+                <div class="card h-100">
+                    <div class="card-body p-0">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between px-20 py-16 border-bottom border-neutral-200">
+                            <h6 class="text-lg mb-0">Top Counselors</h6>
+                        </div>
+                        <div class="ps-20 pt-20 pb-20">
+                            <div class="pe-20 d-flex flex-column gap-20">
+                                @forelse($topCounselors ?? [] as $counselor)
+                                <div class="d-flex align-items-center justify-content-between gap-16">
+                                    <div class="d-flex align-items-start gap-16">
+                                        @if($counselor->profile_picture)
+                                            <img src="{{ $counselor->profile_picture_url }}" alt="{{ $counselor->name }}" class="w-40-px h-40-px rounded-circle object-fit-cover flex-shrink-0">
+                                        @else
+                                            <div class="w-40-px h-40-px bg-primary-100 rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
+                                                {{ strtoupper(substr($counselor->name, 0, 1)) }}
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <h6 class="mb-0 text-sm">{{ $counselor->name }}</h6>
+                                            <span class="text-secondary-light text-xs mb-0">{{ $counselor->student_count }} Students</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @empty
+                                <div class="text-center py-4">
+                                    <p class="text-secondary-light">No counselors found</p>
+                                </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Application Staff -->
+            <div class="col-xxl-6">
+                <div class="card h-100">
+                    <div class="card-body p-0">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between px-20 py-16 border-bottom border-neutral-200">
+                            <h6 class="text-lg mb-0">Top Application Staff</h6>
+                        </div>
+                        <div class="ps-20 pt-20 pb-20">
+                            <div class="pe-20 d-flex flex-column gap-20">
+                                @forelse($topApplicationStaff ?? [] as $staff)
+                                <div class="d-flex align-items-center justify-content-between gap-16">
+                                    <div class="d-flex align-items-start gap-16">
+                                        @if($staff->profile_picture)
+                                            <img src="{{ $staff->profile_picture_url }}" alt="{{ $staff->name }}" class="w-40-px h-40-px rounded-circle object-fit-cover flex-shrink-0">
+                                        @else
+                                            <div class="w-40-px h-40-px bg-success-100 rounded-circle d-flex justify-content-center align-items-center flex-shrink-0">
+                                                {{ strtoupper(substr($staff->name, 0, 1)) }}
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <h6 class="mb-0 text-sm">{{ $staff->name }}</h6>
+                                            <span class="text-secondary-light text-xs mb-0">{{ $staff->student_count }} Students</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                @empty
+                                <div class="text-center py-4">
+                                    <p class="text-secondary-light">No application staff found</p>
+                                </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
