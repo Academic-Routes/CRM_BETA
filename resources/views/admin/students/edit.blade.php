@@ -143,13 +143,13 @@
                                                     </div>
                                                     <div class="row gy-2">
                                                         <div class="col-md-6">
-                                                            <input type="text" name="universities[]" class="form-control" value="{{ $universityName }}" placeholder="University Name" required>
+                                                            <input type="text" name="universities[]" class="form-control" value="{{ $universityName }}" placeholder="University Name">
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="courses-container">
                                                                 @foreach($courses as $course)
                                                                     <div class="d-flex gap-2 mb-2">
-                                                                        <input type="text" name="courses[{{ $loop->parent->index }}][]" class="form-control" value="{{ $course->course_name }}" placeholder="Course Name" required>
+                                                                        <input type="text" name="courses[{{ $loop->parent->index }}][]" class="form-control" value="{{ $course->course_name }}" placeholder="Course Name">
                                                                         <button type="button" class="btn btn-outline-danger btn-sm remove-course" style="display: {{ $loop->first && $courses->count() == 1 ? 'none' : 'block' }};">-</button>
                                                                     </div>
                                                                 @endforeach
@@ -171,12 +171,12 @@
                                                 </div>
                                                 <div class="row gy-2">
                                                     <div class="col-md-6">
-                                                        <input type="text" name="universities[]" class="form-control" placeholder="University Name" required>
+                                                        <input type="text" name="universities[]" class="form-control" placeholder="University Name">
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="courses-container">
                                                             <div class="d-flex gap-2 mb-2">
-                                                                <input type="text" name="courses[0][]" class="form-control" placeholder="Course Name" required>
+                                                                <input type="text" name="courses[0][]" class="form-control" placeholder="Course Name">
                                                                 <button type="button" class="btn btn-outline-primary btn-sm add-course">+</button>
                                                             </div>
                                                         </div>
@@ -658,12 +658,12 @@
                 </div>
                 <div class="row gy-2">
                     <div class="col-md-6">
-                        <input type="text" name="universities[]" class="form-control" placeholder="University Name" required>
+                        <input type="text" name="universities[]" class="form-control" placeholder="University Name">
                     </div>
                     <div class="col-md-6">
                         <div class="courses-container">
                             <div class="d-flex gap-2 mb-2">
-                                <input type="text" name="courses[${universityIndex}][]" class="form-control" placeholder="Course Name" required>
+                                <input type="text" name="courses[${universityIndex}][]" class="form-control" placeholder="Course Name">
                                 <button type="button" class="btn btn-outline-primary btn-sm add-course">+</button>
                             </div>
                         </div>
@@ -688,7 +688,7 @@
         const universityIdx = $(this).closest('.university-item').index();
         const newCourse = `
             <div class="d-flex gap-2 mb-2">
-                <input type="text" name="courses[${universityIdx}][]" class="form-control" placeholder="Course Name" required>
+                <input type="text" name="courses[${universityIdx}][]" class="form-control" placeholder="Course Name">
                 <button type="button" class="btn btn-outline-danger btn-sm remove-course">-</button>
             </div>
         `;
@@ -705,7 +705,7 @@
             const universityIdx = $(this).closest('.university-item').index();
             const newCourse = `
                 <div class="d-flex gap-2 mb-2">
-                    <input type="text" name="courses[${universityIdx}][]" class="form-control" placeholder="Course Name" required>
+                    <input type="text" name="courses[${universityIdx}][]" class="form-control" placeholder="Course Name">
                     <button type="button" class="btn btn-outline-primary btn-sm add-course">+</button>
                 </div>
             `;
