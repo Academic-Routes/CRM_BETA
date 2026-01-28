@@ -255,10 +255,13 @@
                                             </div>
                                         @endif
                                         <div>
-                                            <h6 class="mb-0 text-sm">{{ $counselor->name }}</h6>
+                                            <a href="{{ route('staff.students', ['staffId' => $counselor->id, 'type' => 'counselor']) }}" class="text-decoration-none">
+                                                <h6 class="mb-0 text-sm text-primary-600 hover-text-primary-800">{{ $counselor->name }}</h6>
+                                            </a>
                                             <span class="text-secondary-light text-xs mb-0">{{ $counselor->students_count ?? 0 }} Students</span>
                                         </div>
                                     </div>
+                                    <a href="{{ route('staff.students', ['staffId' => $counselor->id, 'type' => 'counselor']) }}" class="btn btn-outline-primary btn-sm">View</a>
                                 </div>
                                 @empty
                                 <div class="text-center py-4">
@@ -291,10 +294,13 @@
                                             </div>
                                         @endif
                                         <div>
-                                            <h6 class="mb-0 text-sm">{{ $staff->name }}</h6>
+                                            <a href="{{ route('staff.students', ['staffId' => $staff->id, 'type' => 'application']) }}" class="text-decoration-none">
+                                                <h6 class="mb-0 text-sm text-success-600 hover-text-success-800">{{ $staff->name }}</h6>
+                                            </a>
                                             <span class="text-secondary-light text-xs mb-0">{{ $staff->application_students_count ?? 0 }} Students</span>
                                         </div>
                                     </div>
+                                    <a href="{{ route('staff.students', ['staffId' => $staff->id, 'type' => 'application']) }}" class="btn btn-outline-success btn-sm">View</a>
                                 </div>
                                 @empty
                                 <div class="text-center py-4">
