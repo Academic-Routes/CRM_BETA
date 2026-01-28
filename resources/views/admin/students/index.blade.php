@@ -16,6 +16,21 @@
         @endif
     </div>
 
+    <!-- Search Form -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" action="{{ route('students.index') }}" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control" placeholder="Search by name or phone number" value="{{ request('search') }}">
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary me-2">Search</button>
+                    <a href="{{ route('students.index') }}" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -81,7 +96,7 @@
             
             <!-- Pagination -->
             <div class="d-flex justify-content-center mt-3">
-                {{ $students->links() }}
+                {{ $students->appends(request()->query())->links() }}
             </div>
         </div>
     </div>

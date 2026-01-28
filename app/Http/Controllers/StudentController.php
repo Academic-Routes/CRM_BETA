@@ -18,31 +18,59 @@ class StudentController extends Controller
         $user = Auth::user();
         
         if ($user->hasRole('Counselor')) {
-            $students = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'created_at')
-                             ->with(['counselor:id,name'])
-                             ->where(function($query) use ($user) {
-                                 $query->where('counselor_id', $user->id)
-                                       ->orWhere('created_by', $user->id);
-                             })
-                             ->orderBy('created_at', 'desc')
-                             ->paginate(10);
+            $query = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'created_at')
+                           ->with(['counselor:id,name'])
+                           ->where(function($q) use ($user) {
+                               $q->where('counselor_id', $user->id)
+                                 ->orWhere('created_by', $user->id);
+                           });
+            
+            if ($request->search) {
+                $query->where(function($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                      ->orWhere('phone', 'like', '%' . $request->search . '%');
+                });
+            }
+            
+            $students = $query->orderBy('created_at', 'desc')->paginate(10);
             return view('admin.students.index', compact('students'));
         } elseif ($user->hasRole('FrontDesk')) {
-            $students = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'created_at')
-                             ->with(['counselor:id,name'])
-                             ->orderBy('created_at', 'desc')
-                             ->paginate(10);
+            $query = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'created_at')
+                           ->with(['counselor:id,name']);
+            
+            if ($request->search) {
+                $query->where(function($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                      ->orWhere('phone', 'like', '%' . $request->search . '%');
+                });
+            }
+            
+            $students = $query->orderBy('created_at', 'desc')->paginate(10);
             return view('admin.students.index', compact('students'));
         } elseif ($user->hasRole('Application')) {
-            $students = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'application_staff_id', 'created_at')
-                             ->with(['counselor:id,name', 'applicationStaff:id,name'])
-                             ->whereIn('status', ['Sent to Application', 'Application In Review'])
-                             ->orderBy('created_at', 'desc')
-                             ->paginate(10);
+            $query = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'application_staff_id', 'created_at')
+                           ->with(['counselor:id,name', 'applicationStaff:id,name'])
+                           ->whereIn('status', ['Sent to Application', 'Application In Review']);
+            
+            if ($request->search) {
+                $query->where(function($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                      ->orWhere('phone', 'like', '%' . $request->search . '%');
+                });
+            }
+            
+            $students = $query->orderBy('created_at', 'desc')->paginate(10);
             return view('admin.students.sent-for-application', compact('students'));
         } else {
             $query = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'application_staff_id', 'created_at')
                           ->with(['counselor:id,name', 'applicationStaff:id,name']);
+            
+            if ($request->search) {
+                $query->where(function($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
+                      ->orWhere('phone', 'like', '%' . $request->search . '%');
+                });
+            }
             
             if ($request->counselor_id) {
                 $query->where('counselor_id', $request->counselor_id);

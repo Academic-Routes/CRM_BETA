@@ -101,6 +101,9 @@ class DashboardController extends Controller
         $data = [
             'totalStudents' => Student::count(),
             'studentsThisMonth' => Student::whereMonth('created_at', Carbon::now()->month)->count(),
+            'totalCounselors' => User::whereHas('role', function($q) { $q->where('name', 'Counselor'); })
+                                    ->whereHas('students')
+                                    ->count(),
             'applicationsSent' => Student::whereIn('status', ['Sent to Application', 'Application In Review'])->count(),
             'completedApplications' => Student::where('status', 'Completed')->count(),
             'recentStudents' => Student::select('id', 'name', 'status', 'counselor_id', 'created_at')
