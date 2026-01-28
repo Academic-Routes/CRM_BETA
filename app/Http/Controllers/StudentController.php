@@ -18,8 +18,8 @@ class StudentController extends Controller
         $user = Auth::user();
         
         if ($user->hasRole('Counselor')) {
-            // Counselors see students assigned to them or created by them
-            $students = Student::with(['counselor', 'applicationStaff'])
+            $students = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'created_at')
+                             ->with(['counselor:id,name'])
                              ->where(function($query) use ($user) {
                                  $query->where('counselor_id', $user->id)
                                        ->orWhere('created_by', $user->id);
@@ -28,20 +28,21 @@ class StudentController extends Controller
                              ->paginate(10);
             return view('admin.students.index', compact('students'));
         } elseif ($user->hasRole('FrontDesk')) {
-            // FrontDesk sees all students
-            $students = Student::with(['counselor', 'applicationStaff'])
+            $students = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'created_at')
+                             ->with(['counselor:id,name'])
                              ->orderBy('created_at', 'desc')
                              ->paginate(10);
             return view('admin.students.index', compact('students'));
         } elseif ($user->hasRole('Application')) {
-            $students = Student::with(['counselor', 'applicationStaff'])
+            $students = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'application_staff_id', 'created_at')
+                             ->with(['counselor:id,name', 'applicationStaff:id,name'])
                              ->whereIn('status', ['Sent to Application', 'Application In Review'])
                              ->orderBy('created_at', 'desc')
                              ->paginate(10);
             return view('admin.students.sent-for-application', compact('students'));
         } else {
-            // Admin/Supervisor view with filters
-            $query = Student::with(['counselor', 'applicationStaff']);
+            $query = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'application_staff_id', 'created_at')
+                          ->with(['counselor:id,name', 'applicationStaff:id,name']);
             
             if ($request->counselor_id) {
                 $query->where('counselor_id', $request->counselor_id);
@@ -60,8 +61,8 @@ class StudentController extends Controller
             }
             
             $students = $query->orderBy('created_at', 'desc')->paginate(10);
-            $counselors = User::whereHas('role', function($q) { $q->where('name', 'Counselor'); })->get();
-            $applicationStaff = User::whereHas('role', function($q) { $q->where('name', 'Application'); })->get();
+            $counselors = User::select('id', 'name')->whereHas('role', function($q) { $q->where('name', 'Counselor'); })->get();
+            $applicationStaff = User::select('id', 'name')->whereHas('role', function($q) { $q->where('name', 'Application'); })->get();
             $statuses = ['New', 'Assigned to Counselor', 'Documents Pending', 'Documents Completed', 'Sent to Application', 'Application In Review', 'Completed', 'On Hold', 'Rejected'];
             
             return view('admin.students.admin-index', compact('students', 'counselors', 'applicationStaff', 'statuses'));
@@ -167,7 +168,7 @@ class StudentController extends Controller
             $studentData['status'] = 'New';
         }
 
-        // Handle file uploads
+        // Handle file uploads with optimized storage
         $documentFields = [
             'passport', 'lor', 'moi', 'cv', 'sop', 'transcripts', 'english_test_doc',
             'financial_docs', 'birth_certificate', 'medical_certificate', 'student_photo',
@@ -178,20 +179,23 @@ class StudentController extends Controller
             'masters_transcript', 'masters_degree', 'masters_provisional', 'masters_other_file'
         ];
 
+        $studentName = preg_replace('/[^A-Za-z0-9_-]/', '_', $request->name);
+        $studentFolder = 'students/' . $studentName . '_' . time() . '/files';
+
         foreach ($documentFields as $field) {
             if ($request->hasFile($field)) {
-                $studentData[$field] = $request->file($field)->store('student-documents', 'public');
+                $studentData[$field] = $request->file($field)->store($studentFolder, 'public');
             }
         }
 
-        // Handle additional documents
+        // Handle additional documents with optimized storage
         $additionalDocs = [];
         if ($request->has('additional_doc_names')) {
             foreach ($request->additional_doc_names as $index => $name) {
                 if ($name && $request->hasFile("additional_doc_files.{$index}")) {
                     $additionalDocs[] = [
                         'name' => $name,
-                        'file' => $request->file("additional_doc_files.{$index}")->store('student-documents', 'public')
+                        'file' => $request->file("additional_doc_files.{$index}")->store($studentFolder, 'public')
                     ];
                 }
             }
@@ -366,9 +370,12 @@ class StudentController extends Controller
                 'masters_transcript', 'masters_degree', 'masters_provisional', 'masters_other_file'
             ];
             
+            $studentName = preg_replace('/[^A-Za-z0-9_-]/', '_', $student->name);
+            $studentFolder = 'students/' . $studentName . '_' . $student->id . '/files';
+            
             foreach ($documentFields as $field) {
                 if ($request->hasFile($field)) {
-                    $studentData[$field] = $request->file($field)->store('student-documents', 'public');
+                    $studentData[$field] = $request->file($field)->store($studentFolder, 'public');
                 }
             }
 
@@ -379,7 +386,7 @@ class StudentController extends Controller
                     if ($name) {
                         $docData = ['name' => $name];
                         if ($request->hasFile("additional_docs.{$index}")) {
-                            $docData['file'] = $request->file("additional_docs.{$index}")->store('student-documents', 'public');
+                            $docData['file'] = $request->file("additional_docs.{$index}")->store($studentFolder, 'public');
                         } elseif (isset($student->additional_documents[$index]['file'])) {
                             $docData['file'] = $student->additional_documents[$index]['file'];
                         }

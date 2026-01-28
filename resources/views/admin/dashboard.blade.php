@@ -142,24 +142,21 @@
                 <div class="card h-100">
                     <div class="card-body p-0">
                         <div class="d-flex flex-wrap align-items-center justify-content-between px-20 py-16 border-bottom border-neutral-200">
-                            <h6 class="text-lg mb-0">Status Distribution</h6>
+                            <h6 class="text-lg mb-0">Quick Stats</h6>
                         </div>
                         <div class="p-20">
-                            @if(isset($statusCounts))
-                                @foreach($statusCounts as $status => $count)
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="w-12-px h-12-px radius-2 bg-{{ $status == 'Completed' ? 'success' : ($status == 'New' ? 'warning' : 'primary') }}-600"></span>
-                                        <span class="text-neutral-600">{{ $status }}</span>
-                                    </div>
-                                    <span class="fw-semibold text-primary-light">{{ $count }}</span>
-                                </div>
-                                @endforeach
-                            @else
-                                <div class="text-center py-4">
-                                    <p class="text-secondary-light">No data available</p>
-                                </div>
-                            @endif
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <span class="text-neutral-600">New Students</span>
+                                <span class="fw-semibold text-primary-light">{{ $studentsThisMonth ?? 0 }}</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <span class="text-neutral-600">In Progress</span>
+                                <span class="fw-semibold text-primary-light">{{ $applicationsSent ?? 0 }}</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="text-neutral-600">Completed</span>
+                                <span class="fw-semibold text-primary-light">{{ $completedApplications ?? 0 }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -259,7 +256,7 @@
                                         @endif
                                         <div>
                                             <h6 class="mb-0 text-sm">{{ $counselor->name }}</h6>
-                                            <span class="text-secondary-light text-xs mb-0">{{ $counselor->student_count }} Students</span>
+                                            <span class="text-secondary-light text-xs mb-0">{{ $counselor->students_count ?? 0 }} Students</span>
                                         </div>
                                     </div>
                                 </div>
@@ -295,7 +292,7 @@
                                         @endif
                                         <div>
                                             <h6 class="mb-0 text-sm">{{ $staff->name }}</h6>
-                                            <span class="text-secondary-light text-xs mb-0">{{ $staff->student_count }} Students</span>
+                                            <span class="text-secondary-light text-xs mb-0">{{ $staff->application_students_count ?? 0 }} Students</span>
                                         </div>
                                     </div>
                                 </div>
