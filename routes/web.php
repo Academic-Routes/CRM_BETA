@@ -7,15 +7,14 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('web')->group(function () {
-    Route::get('/', function () {
-        return view('admin.index');
-    })->middleware('auth');
+    Route::get('/', [DashboardController::class, 'index'])->middleware('auth');
 
     Route::middleware('auth')->group(function () {
         Route::resource('roles', RoleController::class);
