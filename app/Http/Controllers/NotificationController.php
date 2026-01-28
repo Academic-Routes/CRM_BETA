@@ -67,15 +67,26 @@ class NotificationController extends Controller
         $lastCheck = $request->input('last_check', now()->subMinutes(1)->timestamp);
         $lastCheckTime = \Carbon\Carbon::createFromTimestamp($lastCheck);
         
+        // Get new notifications since last check
         $newNotifications = $user->notifications()
             ->where('created_at', '>', $lastCheckTime)
             ->where('is_read', false)
             ->latest()
-            ->get();
+            ->get()
+            ->map(function($notification) {
+                return [
+                    'id' => $notification->id,
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'type' => $notification->type,
+                    'created_at' => $notification->created_at->format('Y-m-d H:i:s')
+                ];
+            });
 
         return response()->json([
             'count' => $unreadCount,
-            'new_notifications' => $newNotifications
+            'new_notifications' => $newNotifications,
+            'timestamp' => now()->timestamp
         ]);
     }
 }

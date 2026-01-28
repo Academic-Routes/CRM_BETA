@@ -36,10 +36,10 @@
     }
 
     function startPolling() {
-        // Poll every 10 seconds for new notifications
+        // Poll every 1 second for real-time notifications
         notificationInterval = setInterval(() => {
             checkForNewNotifications();
-        }, 10000);
+        }, 1000);
     }
 
     function checkForNewNotifications() {
@@ -53,7 +53,12 @@
                 last_check: Math.floor(lastNotificationCheck / 1000)
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.count !== undefined) {
                 updateNotificationBadge(data.count);
@@ -66,7 +71,10 @@
                 lastNotificationCheck = Date.now();
             }
         })
-        .catch(error => console.log('Notification check failed:', error));
+        .catch(error => {
+            console.log('Notification check failed:', error);
+            // Continue polling even if there's an error
+        });
     }
 
     function updateNotificationCount() {
