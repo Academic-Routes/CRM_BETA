@@ -255,10 +255,8 @@ class StudentController extends Controller
             }
         }
         
-        // Send notification when student is added (except when counselor creates for themselves)
-        if (!$user->hasRole('Counselor')) {
-            NotificationService::notifyStudentAdded($student, $user);
-        }
+        // Send notification when student is added
+        NotificationService::notifyStudentAdded($student, $user);
         
         return redirect()->route('students.index')->with('success', 'Student created successfully!');
     }
