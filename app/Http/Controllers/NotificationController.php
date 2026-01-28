@@ -62,10 +62,13 @@ class NotificationController extends Controller
     public function poll(Request $request)
     {
         $user = Auth::user();
-        $unreadCount = $user->unreadNotifications()->count();
+        $unreadCount = $user->notifications()->where('is_read', false)->count();
+        
+        $lastCheck = $request->input('last_check', now()->subMinutes(1)->timestamp);
+        $lastCheckTime = \Carbon\Carbon::createFromTimestamp($lastCheck);
         
         $newNotifications = $user->notifications()
-            ->where('created_at', '>', now()->subMinutes(5))
+            ->where('created_at', '>', $lastCheckTime)
             ->where('is_read', false)
             ->latest()
             ->get();

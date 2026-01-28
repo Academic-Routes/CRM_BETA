@@ -27,81 +27,103 @@
     @include('layouts.admin.scripts')
     
     <script>
-    let eventSource;
-    let lastNotificationId = 0;
+    let notificationInterval;
+    let lastNotificationCheck = Date.now();
 
     function initializeNotifications() {
-        // Get the last notification ID from localStorage or server
-        lastNotificationId = localStorage.getItem('lastNotificationId') || 0;
         updateNotificationCount();
-        startSSE();
+        startPolling();
     }
 
-    function startSSE() {
-        if (eventSource) {
-            eventSource.close();
-        }
-        
-        eventSource = new EventSource(`/notifications/stream?lastId=${lastNotificationId}`);
-        
-        eventSource.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            
-            if (data.type === 'notification') {
-                lastNotificationId = data.id;
-                localStorage.setItem('lastNotificationId', lastNotificationId);
-                updateNotificationCount();
-                showNotificationToast(data);
+    function startPolling() {
+        // Poll every 10 seconds for new notifications
+        notificationInterval = setInterval(() => {
+            checkForNewNotifications();
+        }, 10000);
+    }
+
+    function checkForNewNotifications() {
+        fetch('/notifications/poll', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                last_check: Math.floor(lastNotificationCheck / 1000)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.count !== undefined) {
+                updateNotificationBadge(data.count);
             }
-        };
-        
-        eventSource.onerror = function() {
-            setTimeout(startSSE, 5000);
-        };
+            
+            if (data.new_notifications && data.new_notifications.length > 0) {
+                data.new_notifications.forEach(notification => {
+                    showNotificationToast(notification);
+                });
+                lastNotificationCheck = Date.now();
+            }
+        })
+        .catch(error => console.log('Notification check failed:', error));
     }
 
     function updateNotificationCount() {
         fetch('/notifications/count')
             .then(response => response.json())
             .then(data => {
-                const badge = document.getElementById('notificationCount');
-                if (data.count > 0) {
-                    badge.textContent = data.count;
-                    badge.style.display = 'block';
-                } else {
-                    badge.style.display = 'none';
-                }
+                updateNotificationBadge(data.count);
             })
             .catch(error => console.log('Error fetching notification count:', error));
+    }
+    
+    function updateNotificationBadge(count) {
+        const badge = document.getElementById('notificationCount');
+        if (badge) {
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
     }
 
     function showNotificationToast(notification) {
         const toast = document.createElement('div');
         toast.className = 'notification-toast';
         toast.innerHTML = `
-            <div class="toast-header">${notification.title}</div>
-            <div class="toast-body">${notification.message}</div>
+            <div class="toast-header fw-bold text-primary">${notification.title}</div>
+            <div class="toast-body text-sm">${notification.message}</div>
         `;
         toast.style.cssText = `
-            position: fixed; top: 20px; right: 20px; z-index: 9999;
-            background: #fff; border: 1px solid #ddd; border-radius: 5px;
-            padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 300px; animation: slideIn 0.3s ease;
+            position: fixed; top: 80px; right: 20px; z-index: 9999;
+            background: #fff; border-left: 4px solid #007bff; border-radius: 8px;
+            padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            max-width: 350px; min-width: 300px;
+            transform: translateX(100%); transition: transform 0.3s ease;
         `;
         
         document.body.appendChild(toast);
         
+        // Slide in
         setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s ease';
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Slide out after 4 seconds
+        setTimeout(() => {
+            toast.style.transform = 'translateX(100%)';
             setTimeout(() => toast.remove(), 300);
-        }, 5000);
+        }, 4000);
     }
     
     document.addEventListener('DOMContentLoaded', initializeNotifications);
     
     window.addEventListener('beforeunload', function() {
-        if (eventSource) {
-            eventSource.close();
+        if (notificationInterval) {
+            clearInterval(notificationInterval);
         }
     });
     
