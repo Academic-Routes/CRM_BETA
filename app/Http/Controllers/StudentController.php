@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Models\StudentUniversity;
 use App\Models\Department;
 use App\Models\User;
 use App\Services\NotificationService;
@@ -152,8 +153,6 @@ class StudentController extends Controller
             'last_score' => $request->last_score,
             'passed_year' => $request->passed_year,
             'interested_country' => $request->interested_country,
-            'interested_course' => $request->interested_course,
-            'interested_university' => $request->interested_university,
             'english_test' => $request->english_test,
             'other_english_test' => $request->other_english_test,
             'english_test_score' => $request->english_test_score,
@@ -207,6 +206,22 @@ class StudentController extends Controller
         $studentData['masters_other_name'] = $request->masters_other_name;
 
         $student = Student::create($studentData);
+        
+        // Handle universities and courses
+        if ($request->has('universities') && $request->has('courses')) {
+            foreach ($request->universities as $index => $university) {
+                if ($university && isset($request->courses[$index])) {
+                    foreach ($request->courses[$index] as $course) {
+                        if ($course) {
+                            $student->universities()->create([
+                                'university_name' => $university,
+                                'course_name' => $course,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
         
         // Send notification when student is added (except when counselor creates for themselves)
         if (!$user->hasRole('Counselor')) {
@@ -302,8 +317,6 @@ class StudentController extends Controller
                 'last_score' => $request->last_score,
                 'passed_year' => $request->passed_year,
                 'interested_country' => $request->interested_country,
-                'interested_course' => $request->interested_course,
-                'interested_university' => $request->interested_university,
                 'english_test' => $request->english_test,
                 'other_english_test' => $request->other_english_test,
                 'english_test_score' => $request->english_test_score,
@@ -383,6 +396,26 @@ class StudentController extends Controller
         $originalStatus = $student->status;
         
         $student->update($studentData);
+        
+        // Handle universities and courses update (skip for Application users)
+        if (!$user->hasRole('Application') && $request->has('universities') && $request->has('courses')) {
+            // Delete existing universities
+            $student->universities()->delete();
+            
+            // Add new universities and courses
+            foreach ($request->universities as $index => $university) {
+                if ($university && isset($request->courses[$index])) {
+                    foreach ($request->courses[$index] as $course) {
+                        if ($course) {
+                            $student->universities()->create([
+                                'university_name' => $university,
+                                'course_name' => $course,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
 
         // Send notifications for assignments and status changes
         if (isset($studentData['counselor_id']) && $studentData['counselor_id'] != $originalCounselorId) {

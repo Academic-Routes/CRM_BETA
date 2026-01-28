@@ -5,6 +5,24 @@
 @push('styles')
 <!-- Flatpickr CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+.university-item {
+    transition: all 0.3s ease;
+}
+.university-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.add-course, .remove-course {
+    min-width: 40px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.courses-container .d-flex {
+    align-items: center;
+}
+</style>
 @endpush
 
 @section('content')
@@ -105,13 +123,69 @@
                                 <label for="interested_country" class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Interested Country</label>
                                 <input type="text" name="interested_country" class="form-control" id="interested_country" value="{{ $student->interested_country }}">
                             </div>
-                            <div class="col-xxl-3 col-xl-4 col-sm-6">
-                                <label for="interested_course" class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Interested Course</label>
-                                <input type="text" name="interested_course" class="form-control" id="interested_course" value="{{ $student->interested_course }}">
-                            </div>
-                            <div class="col-xxl-3 col-xl-4 col-sm-6">
-                                <label for="interested_university" class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Interested University</label>
-                                <input type="text" name="interested_university" class="form-control" id="interested_university" value="{{ $student->interested_university }}">
+                            
+                            <!-- Universities and Courses Section -->
+                            <div class="col-12">
+                                <div class="border border-neutral-200 rounded-8 p-16 mb-3">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <h6 class="text-md fw-semibold mb-0 text-primary-light">Universities & Courses</h6>
+                                        <button type="button" id="add-university" class="btn btn-primary-600 btn-sm">
+                                            <i class="ri-add-line"></i> Add University
+                                        </button>
+                                    </div>
+                                    <div id="universities-container">
+                                        @if($student->universities && $student->universities->count() > 0)
+                                            @foreach($student->universities->groupBy('university_name') as $universityName => $courses)
+                                                <div class="university-item border border-neutral-100 rounded-6 p-12 mb-3">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <span class="text-sm fw-medium text-secondary-light">University {{ $loop->iteration }}</span>
+                                                        <button type="button" class="btn btn-danger-600 btn-sm remove-university" style="display: {{ $loop->first ? 'none' : 'block' }};">Remove</button>
+                                                    </div>
+                                                    <div class="row gy-2">
+                                                        <div class="col-md-6">
+                                                            <input type="text" name="universities[]" class="form-control" value="{{ $universityName }}" placeholder="University Name" required>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="courses-container">
+                                                                @foreach($courses as $course)
+                                                                    <div class="d-flex gap-2 mb-2">
+                                                                        <input type="text" name="courses[{{ $loop->parent->index }}][]" class="form-control" value="{{ $course->course_name }}" placeholder="Course Name" required>
+                                                                        <button type="button" class="btn btn-outline-danger btn-sm remove-course" style="display: {{ $loop->first && $courses->count() == 1 ? 'none' : 'block' }};">-</button>
+                                                                    </div>
+                                                                @endforeach
+                                                                @if($courses->count() == 1)
+                                                                    <button type="button" class="btn btn-outline-primary btn-sm add-course">+ Add Course</button>
+                                                                @else
+                                                                    <button type="button" class="btn btn-outline-primary btn-sm add-course">+ Add Course</button>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <div class="university-item border border-neutral-100 rounded-6 p-12 mb-3">
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                                    <span class="text-sm fw-medium text-secondary-light">University 1</span>
+                                                    <button type="button" class="btn btn-danger-600 btn-sm remove-university" style="display: none;">Remove</button>
+                                                </div>
+                                                <div class="row gy-2">
+                                                    <div class="col-md-6">
+                                                        <input type="text" name="universities[]" class="form-control" placeholder="University Name" required>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="courses-container">
+                                                            <div class="d-flex gap-2 mb-2">
+                                                                <input type="text" name="courses[0][]" class="form-control" placeholder="Course Name" required>
+                                                                <button type="button" class="btn btn-outline-primary btn-sm add-course">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-xxl-3 col-xl-4 col-sm-6">
                                 <label for="english_test" class="text-sm fw-semibold text-primary-light d-inline-block mb-8">English Test</label>
@@ -569,6 +643,96 @@
             $('.remove-doc').hide();
         }
     });
+    
+    // University and Course Management
+    let universityIndex = $('.university-item').length - 1;
+    
+    // Add University
+    $('#add-university').on('click', function() {
+        universityIndex++;
+        const newUniversity = `
+            <div class="university-item border border-neutral-100 rounded-6 p-12 mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-sm fw-medium text-secondary-light">University ${universityIndex + 1}</span>
+                    <button type="button" class="btn btn-danger-600 btn-sm remove-university">Remove</button>
+                </div>
+                <div class="row gy-2">
+                    <div class="col-md-6">
+                        <input type="text" name="universities[]" class="form-control" placeholder="University Name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="courses-container">
+                            <div class="d-flex gap-2 mb-2">
+                                <input type="text" name="courses[${universityIndex}][]" class="form-control" placeholder="Course Name" required>
+                                <button type="button" class="btn btn-outline-primary btn-sm add-course">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('#universities-container').append(newUniversity);
+        updateRemoveButtons();
+    });
+    
+    // Remove University
+    $(document).on('click', '.remove-university', function() {
+        $(this).closest('.university-item').remove();
+        updateUniversityLabels();
+        updateRemoveButtons();
+    });
+    
+    // Add Course to University
+    $(document).on('click', '.add-course', function() {
+        const coursesContainer = $(this).closest('.courses-container');
+        const universityIdx = $(this).closest('.university-item').index();
+        const newCourse = `
+            <div class="d-flex gap-2 mb-2">
+                <input type="text" name="courses[${universityIdx}][]" class="form-control" placeholder="Course Name" required>
+                <button type="button" class="btn btn-outline-danger btn-sm remove-course">-</button>
+            </div>
+        `;
+        coursesContainer.append(newCourse);
+    });
+    
+    // Remove Course
+    $(document).on('click', '.remove-course', function() {
+        const coursesContainer = $(this).closest('.courses-container');
+        $(this).closest('.d-flex').remove();
+        
+        // If no courses left, add a default one
+        if (coursesContainer.find('.d-flex').length === 0) {
+            const universityIdx = $(this).closest('.university-item').index();
+            const newCourse = `
+                <div class="d-flex gap-2 mb-2">
+                    <input type="text" name="courses[${universityIdx}][]" class="form-control" placeholder="Course Name" required>
+                    <button type="button" class="btn btn-outline-primary btn-sm add-course">+</button>
+                </div>
+            `;
+            coursesContainer.append(newCourse);
+        }
+    });
+    
+    // Update remove buttons visibility
+    function updateRemoveButtons() {
+        const universityItems = $('.university-item');
+        if (universityItems.length > 1) {
+            $('.remove-university').show();
+        } else {
+            $('.remove-university').hide();
+        }
+    }
+    
+    // Update university labels
+    function updateUniversityLabels() {
+        $('.university-item').each(function(index) {
+            $(this).find('span').text(`University ${index + 1}`);
+            $(this).find('input[name^="courses"]').each(function() {
+                const name = $(this).attr('name');
+                $(this).attr('name', name.replace(/courses\[\d+\]/, `courses[${index}]`));
+            });
+        });
+    }
     
     // Enable/disable Send to Application button
     $('#application_staff_id').on('change', function() {

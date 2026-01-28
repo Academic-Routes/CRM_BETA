@@ -2,6 +2,68 @@
 
 @section('title', 'View Student')
 
+@push('styles')
+<style>
+.university-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.university-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.university-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.course-item {
+    transition: all 0.2s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.course-item:hover {
+    background: #f8fafc;
+    border-color: #d1d5db;
+    transform: translateX(4px);
+}
+
+.courses-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.courses-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.courses-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 2px;
+}
+
+.courses-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+.courses-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="dashboard-main-body">
     <div class="breadcrumb d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
@@ -70,18 +132,61 @@
                         <div class="col-md-4">
                             <strong>Interested Country:</strong> {{ $student->interested_country ?? 'Not provided' }}
                         </div>
-                        <div class="col-md-4">
-                            <strong>Interested Course:</strong> {{ $student->interested_course ?? 'Not provided' }}
-                        </div>
-                        <div class="col-md-4">
-                            <strong>Interested University:</strong> {{ $student->interested_university ?? 'Not provided' }}
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <strong>English Test:</strong> {{ $student->english_test ?? 'Not provided' }}
                         </div>
                         <div class="col-md-4">
                             <strong>English Test Score:</strong> {{ $student->english_test_score ?? 'Not provided' }}
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Universities and Courses -->
+        <div class="col-lg-12">
+            <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
+                <div class="card-header border-bottom bg-base py-16 px-24">
+                    <h6 class="text-lg fw-semibold mb-0">Universities & Courses</h6>
+                </div>
+                <div class="card-body p-24">
+                    @if($student->universities && $student->universities->count() > 0)
+                        <div class="row g-4">
+                            @foreach($student->universities->groupBy('university_name') as $universityName => $courses)
+                                <div class="col-lg-6 col-xl-4">
+                                    <div class="university-card bg-gradient-primary-light border-0 rounded-12 p-20 h-100">
+                                        <div class="d-flex align-items-center mb-16">
+                                            <div class="w-40-px h-40-px bg-primary-600 rounded-circle d-flex align-items-center justify-content-center me-12">
+                                                <iconify-icon icon="ph:graduation-cap" class="text-white text-xl"></iconify-icon>
+                                            </div>
+                                            <h6 class="text-primary-600 fw-semibold mb-0 flex-grow-1">{{ $universityName }}</h6>
+                                        </div>
+                                        <div class="courses-list">
+                                            <p class="text-sm text-secondary-light mb-8 fw-medium">Courses ({{ $courses->count() }})</p>
+                                            <div class="d-flex flex-column gap-8">
+                                                @foreach($courses as $course)
+                                                    <div class="course-item bg-white rounded-8 px-12 py-8 border border-neutral-200">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="w-6-px h-6-px bg-success-600 rounded-circle me-8"></div>
+                                                            <span class="text-sm text-neutral-700 fw-medium">{{ $course->course_name }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-40">
+                            <div class="w-80-px h-80-px bg-neutral-100 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-16">
+                                <iconify-icon icon="ph:graduation-cap" class="text-neutral-400 text-3xl"></iconify-icon>
+                            </div>
+                            <h6 class="text-neutral-600 mb-8">No Universities Selected</h6>
+                            <p class="text-neutral-400 text-sm mb-0">No universities and courses have been specified for this student</p>
+                        </div>
+                    @endif
                     </div>
                 </div>
             </div>

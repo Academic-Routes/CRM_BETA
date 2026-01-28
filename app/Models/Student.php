@@ -98,6 +98,11 @@ class Student extends Model
         return $this->belongsTo(User::class, 'application_staff_id');
     }
 
+    public function universities()
+    {
+        return $this->hasMany(StudentUniversity::class);
+    }
+
     public function getDocumentCompletionPercentage()
     {
         $requiredDocs = ['passport', 'cv', 'sop', 'transcripts'];
