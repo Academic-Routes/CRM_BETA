@@ -11,21 +11,12 @@ class NotificationService
     {
         $recipients = collect();
         
-        // Always notify Admin, Super Admin, and Supervisor when any student is added
-        $managementUsers = User::whereHas('role', function($query) {
-            $query->whereIn('name', ['Super Admin', 'Admin', 'Supervisor']);
+        // Always notify Admin, Super Admin, Supervisor, and FrontDesk when any student is added
+        $managementAndFrontDesk = User::whereHas('role', function($query) {
+            $query->whereIn('name', ['Super Admin', 'Admin', 'Supervisor', 'FrontDesk']);
         })->where('id', '!=', $fromUser->id)->get();
         
-        $recipients = $recipients->merge($managementUsers);
-        
-        // If FrontDesk user adds student, notify all other FrontDesk users
-        if ($fromUser->hasRole('FrontDesk')) {
-            $frontDeskUsers = User::whereHas('role', function($query) {
-                $query->where('name', 'FrontDesk');
-            })->where('id', '!=', $fromUser->id)->get();
-            
-            $recipients = $recipients->merge($frontDeskUsers);
-        }
+        $recipients = $recipients->merge($managementAndFrontDesk);
         
         $recipients = $recipients->unique('id');
 
@@ -75,16 +66,19 @@ class NotificationService
         $recipients = collect();
 
         // Notify assigned counselor if exists
-        if ($student->assigned_counselor_id) {
-            $recipients->push(User::find($student->assigned_counselor_id));
+        if ($student->counselor_id) {
+            $counselor = User::find($student->counselor_id);
+            if ($counselor) {
+                $recipients->push($counselor);
+            }
         }
 
-        // Notify admins and supervisors
-        $adminUsers = User::whereHas('role', function($query) {
-            $query->whereIn('name', ['Super Admin', 'Admin', 'Supervisor']);
+        // Notify admins, supervisors, and frontdesk
+        $managementAndFrontDesk = User::whereHas('role', function($query) {
+            $query->whereIn('name', ['Super Admin', 'Admin', 'Supervisor', 'FrontDesk']);
         })->where('id', '!=', $fromUser->id)->get();
 
-        $recipients = $recipients->merge($adminUsers)->unique('id');
+        $recipients = $recipients->merge($managementAndFrontDesk)->unique('id');
 
         foreach ($recipients as $recipient) {
             if ($recipient) {
