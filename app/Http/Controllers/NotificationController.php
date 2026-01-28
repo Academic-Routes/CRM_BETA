@@ -25,7 +25,7 @@ class NotificationController extends Controller
             ->firstOrFail();
 
         $notification->update([
-            'read_at' => now()
+            'is_read' => true
         ]);
 
         return response()->json(['success' => true]);
@@ -34,8 +34,9 @@ class NotificationController extends Controller
     public function markAllAsRead()
     {
         Auth::user()
-            ->unreadNotifications()
-            ->update(['read_at' => now()]);
+            ->notifications()
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
 
         return response()->json(['success' => true]);
     }

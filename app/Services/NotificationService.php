@@ -9,9 +9,25 @@ class NotificationService
 {
     public static function notifyStudentAdded($student, $fromUser)
     {
-        $recipients = User::whereHas('role', function($query) {
+        $recipients = collect();
+        
+        // Always notify Admin, Super Admin, and Supervisor when any student is added
+        $managementUsers = User::whereHas('role', function($query) {
             $query->whereIn('name', ['Super Admin', 'Admin', 'Supervisor']);
         })->where('id', '!=', $fromUser->id)->get();
+        
+        $recipients = $recipients->merge($managementUsers);
+        
+        // If FrontDesk user adds student, notify all other FrontDesk users
+        if ($fromUser->hasRole('FrontDesk')) {
+            $frontDeskUsers = User::whereHas('role', function($query) {
+                $query->where('name', 'FrontDesk');
+            })->where('id', '!=', $fromUser->id)->get();
+            
+            $recipients = $recipients->merge($frontDeskUsers);
+        }
+        
+        $recipients = $recipients->unique('id');
 
         foreach ($recipients as $recipient) {
             Notification::createNotification(
