@@ -66,6 +66,16 @@ class User extends Authenticatable
         return in_array($this->role->name, ['Super Admin', 'Admin', 'Supervisor']);
     }
 
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'counselor_id');
+    }
+
+    public function applicationStudents()
+    {
+        return $this->hasMany(Student::class, 'application_staff_id');
+    }
+
     public function getProfilePictureUrlAttribute()
     {
         if (!$this->profile_picture) {

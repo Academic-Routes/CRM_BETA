@@ -24,7 +24,17 @@ class DashboardController extends Controller
             'completedApplications' => Student::where('status', 'Completed')->count(),
             'recentStudents' => Student::with(['counselor'])->latest()->limit(5)->get(),
             'recentNotifications' => $user->notifications()->limit(5)->get(),
-            'statusCounts' => Student::selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status')
+            'statusCounts' => Student::selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status'),
+            'topCounselors' => User::whereHas('role', function($q) { $q->where('name', 'Counselor'); })
+                                ->withCount('students as student_count')
+                                ->orderBy('student_count', 'desc')
+                                ->limit(5)
+                                ->get(),
+            'topApplicationStaff' => User::whereHas('role', function($q) { $q->where('name', 'Application'); })
+                                        ->withCount(['applicationStudents as student_count'])
+                                        ->orderBy('student_count', 'desc')
+                                        ->limit(5)
+                                        ->get()
         ];
         
         return view('admin.dashboard', $data);
