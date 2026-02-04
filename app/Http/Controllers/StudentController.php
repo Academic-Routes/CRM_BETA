@@ -173,6 +173,19 @@ class StudentController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string',
+            // File validation for all document fields
+            'passport' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'lor' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'moi' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'cv' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'sop' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'transcripts' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'english_test_doc' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'financial_docs' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'birth_certificate' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'medical_certificate' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'student_photo' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+            'additional_doc_files.*' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf,xls,xlsx,ppt,pptx,zip,rar',
         ]);
 
         // Prepare data for student creation
@@ -339,6 +352,20 @@ class StudentController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'phone' => 'required|string',
+                // File validation for all document fields
+                'passport' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'lor' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'moi' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'cv' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'sop' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'transcripts' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'english_test_doc' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'financial_docs' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'birth_certificate' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'medical_certificate' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'student_photo' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf',
+                'additional_docs.*' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf,xls,xlsx,ppt,pptx,zip,rar',
+                'app_additional_doc_files.*' => 'nullable|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf,xls,xlsx,ppt,pptx,zip,rar',
             ]);
         }
 
@@ -475,7 +502,8 @@ class StudentController extends Controller
             }
             
             if ($request->has('app_additional_doc_names')) {
-                $existingDocs = json_decode($student->additional_documents, true) ?? [];
+                $existingDocs = is_string($student->additional_documents) ? json_decode($student->additional_documents, true) : $student->additional_documents;
+                $existingDocs = $existingDocs ?? [];
                 $newDocs = [];
                 
                 foreach ($request->app_additional_doc_names as $index => $name) {
