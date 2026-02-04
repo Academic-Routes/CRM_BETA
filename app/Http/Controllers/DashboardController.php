@@ -50,12 +50,13 @@ class DashboardController extends Controller
     private function applicationDashboard($user)
     {
         $data = [
-            'pendingApplications' => Student::whereIn('status', ['Sent to Application', 'Application In Review'])->count(),
+            'pendingApplications' => Student::where('application_staff_id', $user->id)->whereIn('status', ['Sent to Application', 'Application In Review'])->count(),
             'myApplications' => Student::where('application_staff_id', $user->id)->count(),
             'completedToday' => Student::where('application_staff_id', $user->id)->where('status', 'Completed')->whereDate('updated_at', today())->count(),
             'totalCompleted' => Student::where('application_staff_id', $user->id)->where('status', 'Completed')->count(),
             'recentApplications' => Student::select('id', 'name', 'status', 'counselor_id', 'created_at')
                                     ->with(['counselor:id,name'])
+                                    ->where('application_staff_id', $user->id)
                                     ->whereIn('status', ['Sent to Application', 'Application In Review'])
                                     ->latest()
                                     ->limit(5)
