@@ -56,6 +56,6 @@ Route::middleware('web')->group(function () {
         });
         
         // Fallback route to serve storage files
-        Route::get('/storage/{path}', [FileController::class, 'serveFile'])->where('path', '.*');
+        Route::get('/storage/{path}', [FileController::class, 'serveFile'])->where('path', '.*')->name('storage.serve');
     });
 });
