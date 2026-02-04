@@ -284,7 +284,13 @@ class StudentController extends Controller
     {
         $user = Auth::user();
         
+        // Application users can only see students assigned to them
         if ($user->hasRole('Application') && $student->application_staff_id !== $user->id) {
+            abort(403);
+        }
+        
+        // Counselors can see students assigned to them or created by them
+        if ($user->hasRole('Counselor') && $student->counselor_id !== $user->id && $student->created_by !== $user->id) {
             abort(403);
         }
         
@@ -299,13 +305,19 @@ class StudentController extends Controller
         
         // Check if counselor/frontdesk can edit
         if ($user->hasRole('Counselor') || $user->hasRole('FrontDesk')) {
-            if (in_array($student->status, ['Sent to Application', 'Application In Review', 'Completed'])) {
-                return redirect()->route('students.show', $student)
-                               ->with('info', 'You can only view this student as it has been sent to application.');
-            }
-            
             if ($user->hasRole('Counselor') && $student->counselor_id !== $user->id && $student->created_by !== $user->id) {
                 abort(403);
+            }
+            
+            // Counselors can edit students sent to application (for notes only)
+            if ($user->hasRole('Counselor') && in_array($student->status, ['Sent to Application', 'Application In Review', 'Completed'])) {
+                return view('admin.students.edit-counselor-notes', compact('student'));
+            }
+            
+            // FrontDesk cannot edit students sent to application
+            if ($user->hasRole('FrontDesk') && in_array($student->status, ['Sent to Application', 'Application In Review', 'Completed'])) {
+                return redirect()->route('students.show', $student)
+                               ->with('info', 'You can only view this student as it has been sent to application.');
             }
             
             // FrontDesk gets special edit view for status management only

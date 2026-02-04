@@ -382,6 +382,57 @@
             </div>
         </div>
         @endif
+
+        <!-- Additional Documents -->
+        @if($student->additional_documents)
+        <div class="col-lg-12">
+            <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
+                <div class="card-header border-bottom bg-base py-16 px-24">
+                    <h6 class="text-lg fw-semibold mb-0">Additional Documents</h6>
+                </div>
+                <div class="card-body p-20">
+                    <div class="row gy-3">
+                        @php
+                            $additionalDocs = is_string($student->additional_documents) ? json_decode($student->additional_documents, true) : $student->additional_documents;
+                        @endphp
+                        @if($additionalDocs && count($additionalDocs) > 0)
+                            @foreach($additionalDocs as $index => $doc)
+                                @if(isset($doc['name']) && isset($doc['file']))
+                                <div class="col-md-3 mb-3">
+                                    <strong>{{ $doc['name'] }}:</strong><br>
+                                    @php
+                                        $extension = pathinfo($doc['file'], PATHINFO_EXTENSION);
+                                        $fileUrl = url('/storage/' . $doc['file']);
+                                    @endphp
+                                    <div class="text-center">
+                                        @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                            <div style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
+                                        @elseif(strtolower($extension) === 'pdf')
+                                            <div style="width: 80px; height: 80px; background: #dc3545; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; display: flex; align-items: center; justify-content: center; position: relative;">
+                                                <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
+                                                <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
+                                            </div><br>
+                                        @else
+                                            <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                                <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
+                                            </div><br>
+                                        @endif
+                                        <small>{{ strtoupper($extension) }}</small><br>
+                                        <button class="btn btn-sm btn-primary mt-1 preview-additional-doc" data-file="{{ $fileUrl }}" data-title="{{ $doc['name'] }}" data-type="{{ strtolower($extension) }}">Preview</button>
+                                    </div>
+                                </div>
+                                @endif
+                            @endforeach
+                        @else
+                            <div class="col-12">
+                                <span class="text-muted">No additional documents uploaded</span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 
@@ -416,52 +467,68 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle regular document previews
     document.querySelectorAll('.preview-doc').forEach(function(button) {
         button.addEventListener('click', function() {
             const fileUrl = this.getAttribute('data-file');
             const fileType = this.getAttribute('data-type');
             const title = this.getAttribute('data-title');
             
-            document.getElementById('documentModalTitle').textContent = title;
-            document.getElementById('downloadBtn').href = fileUrl;
-            const content = document.getElementById('documentContent');
-            const spinner = document.getElementById('loadingSpinner');
-            
-            // Show loading spinner
-            content.innerHTML = '';
-            spinner.classList.remove('d-none');
-            
-            setTimeout(() => {
-                spinner.classList.add('d-none');
-                
-                if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
-                    content.innerHTML = `
-                        <img src="${fileUrl}" style="max-width: 95%; max-height: 95%; object-fit: contain; box-shadow: 0 10px 40px rgba(255,255,255,0.1);" onload="this.style.opacity=1" style="opacity: 0; transition: opacity 0.5s ease;">
-                    `;
-                } else if (fileType === 'pdf') {
-                    content.innerHTML = `
-                        <embed src="${fileUrl}" type="application/pdf" width="100%" height="100%" style="border: none;">
-                    `;
-                } else {
-                    content.innerHTML = `
-                        <div style="padding: 60px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 15px; backdrop-filter: blur(10px);">
-                            <iconify-icon icon="solar:file-text-bold" style="font-size: 64px; color: #fff; margin-bottom: 20px;"></iconify-icon>
-                            <h5 style="color: #fff; margin-bottom: 10px;">Preview not available</h5>
-                            <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">This file type cannot be previewed in the browser.</p>
-                            <a href="${fileUrl}" class="btn btn-light" style="border-radius: 25px; padding: 12px 25px; font-weight: 600;" download>
-                                <iconify-icon icon="solar:download-bold" class="me-2"></iconify-icon>
-                                Download File
-                            </a>
-                        </div>
-                    `;
-                }
-            }, 800);
-            
-            const modalElement = document.getElementById('documentModal');
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
+            showDocumentModal(fileUrl, fileType, title);
         });
     });
+    
+    // Handle additional document previews
+    document.querySelectorAll('.preview-additional-doc').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const fileUrl = this.getAttribute('data-file');
+            const fileType = this.getAttribute('data-type');
+            const title = this.getAttribute('data-title');
+            
+            showDocumentModal(fileUrl, fileType, title);
+        });
+    });
+    
+    function showDocumentModal(fileUrl, fileType, title) {
+        document.getElementById('documentModalTitle').textContent = title;
+        document.getElementById('downloadBtn').href = fileUrl;
+        const content = document.getElementById('documentContent');
+        const spinner = document.getElementById('loadingSpinner');
+        
+        // Show loading spinner
+        content.innerHTML = '';
+        spinner.classList.remove('d-none');
+        
+        setTimeout(() => {
+            spinner.classList.add('d-none');
+            
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
+                content.innerHTML = `
+                    <img src="${fileUrl}" style="max-width: 95%; max-height: 95%; object-fit: contain; box-shadow: 0 10px 40px rgba(255,255,255,0.1);" onload="this.style.opacity=1" style="opacity: 0; transition: opacity 0.5s ease;">
+                `;
+            } else if (fileType === 'pdf') {
+                content.innerHTML = `
+                    <embed src="${fileUrl}" type="application/pdf" width="100%" height="100%" style="border: none;">
+                `;
+            } else {
+                content.innerHTML = `
+                    <div style="padding: 60px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 15px; backdrop-filter: blur(10px);">
+                        <iconify-icon icon="solar:file-text-bold" style="font-size: 64px; color: #fff; margin-bottom: 20px;"></iconify-icon>
+                        <h5 style="color: #fff; margin-bottom: 10px;">Preview not available</h5>
+                        <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">This file type cannot be previewed in the browser.</p>
+                        <a href="${fileUrl}" class="btn btn-light" style="border-radius: 25px; padding: 12px 25px; font-weight: 600;" download>
+                            <iconify-icon icon="solar:download-bold" class="me-2"></iconify-icon>
+                            Download File
+                        </a>
+                    </div>
+                `;
+            }
+        }, 800);
+        
+        const modalElement = document.getElementById('documentModal');
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
 });
 </script>
 @endsection
