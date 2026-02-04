@@ -28,6 +28,7 @@
     
     <script>
     let pollInterval;
+    let shownNotifications = new Set();
 
     function initializeNotifications() {
         updateNotificationCount();
@@ -41,11 +42,12 @@
                 .then(data => {
                     updateNotificationBadge(data.count);
                     
-                    // Show new notifications
+                    // Show only new notifications that haven't been shown yet
                     if (data.notifications && data.notifications.length > 0) {
                         data.notifications.forEach(notification => {
-                            if (!notification.is_read) {
+                            if (!notification.is_read && !shownNotifications.has(notification.id)) {
                                 showNotificationToast(notification);
+                                shownNotifications.add(notification.id);
                             }
                         });
                     }
@@ -71,6 +73,8 @@
                 badge.style.display = 'block';
             } else {
                 badge.style.display = 'none';
+                // Clear shown notifications when count is 0
+                shownNotifications.clear();
             }
         }
     }
