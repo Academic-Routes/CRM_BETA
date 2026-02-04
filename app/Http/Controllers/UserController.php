@@ -173,13 +173,14 @@ class UserController extends Controller
             $file = $request->file('profile_picture');
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             
-            // Create directory if it doesn't exist
-            if (!file_exists(public_path('profile-pictures'))) {
-                mkdir(public_path('profile-pictures'), 0755, true);
+            // Create directory in web root if it doesn't exist
+            $uploadPath = $_SERVER['DOCUMENT_ROOT'] . '/profile-pictures';
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
             }
             
-            // Move file to public directory
-            $file->move(public_path('profile-pictures'), $filename);
+            // Move file to web root directory
+            $file->move($uploadPath, $filename);
             $updateData['profile_picture'] = $filename;
         }
         
@@ -203,7 +204,7 @@ class UserController extends Controller
         $user = Auth::user();
         
         if ($user->profile_picture) {
-            $filePath = public_path('profile-pictures/' . $user->profile_picture);
+            $filePath = $_SERVER['DOCUMENT_ROOT'] . '/profile-pictures/' . $user->profile_picture;
             if (file_exists($filePath)) {
                 unlink($filePath);
             }
