@@ -170,7 +170,17 @@ class UserController extends Controller
 
         // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {
-            $updateData['profile_picture'] = $request->file('profile_picture')->store('profile-pictures', 'public');
+            $file = $request->file('profile_picture');
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            
+            // Create directory if it doesn't exist
+            if (!file_exists(public_path('profile-pictures'))) {
+                mkdir(public_path('profile-pictures'), 0755, true);
+            }
+            
+            // Move file to public directory
+            $file->move(public_path('profile-pictures'), $filename);
+            $updateData['profile_picture'] = $filename;
         }
         
         // Handle password change
@@ -193,7 +203,10 @@ class UserController extends Controller
         $user = Auth::user();
         
         if ($user->profile_picture) {
-            Storage::disk('public')->delete($user->profile_picture);
+            $filePath = public_path('profile-pictures/' . $user->profile_picture);
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
             $user->update(['profile_picture' => null]);
         }
         

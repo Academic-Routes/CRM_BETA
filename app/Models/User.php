@@ -82,6 +82,6 @@ class User extends Authenticatable
             return null;
         }
         
-        return url('/storage/' . $this->profile_picture);
+        return asset('profile-pictures/' . $this->profile_picture);
     }
 }
