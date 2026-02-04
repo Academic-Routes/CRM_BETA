@@ -104,6 +104,11 @@ class Student extends Model
         return $this->hasMany(StudentUniversity::class);
     }
 
+    public function notes()
+    {
+        return $this->hasMany(StudentNote::class)->latest();
+    }
+
     public function getDocumentCompletionPercentage()
     {
         $requiredDocs = ['passport', 'cv', 'sop', 'transcripts'];

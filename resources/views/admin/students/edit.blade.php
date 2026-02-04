@@ -564,6 +564,25 @@
             </div>
             @endif
 
+            <!-- Notes Section -->
+            @if(auth()->user()->hasRole('Counselor') || auth()->user()->canManageRoles())
+            <div class="col-lg-12">
+                <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
+                    <div class="card-header border-bottom bg-base py-16 px-24">
+                        <h6 class="text-lg fw-semibold mb-0">Add Counselor Note</h6>
+                    </div>
+                    <div class="card-body p-20">
+                        <div class="row gy-3">
+                            <div class="col-md-12">
+                                <label for="counselor_note" class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Note</label>
+                                <textarea name="counselor_note" class="form-control" rows="3" placeholder="Add a counselor note about this student..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <!-- Submit Buttons -->
             <div class="col-lg-12">
                 <div class="d-flex align-items-center justify-content-center gap-3">

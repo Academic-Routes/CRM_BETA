@@ -27,30 +27,31 @@
     @include('layouts.admin.scripts')
     
     <script>
-    let eventSource;
+    let pollInterval;
 
     function initializeNotifications() {
         updateNotificationCount();
-        startSSE();
+        startPolling();
     }
 
-    function startSSE() {
-        eventSource = new EventSource('/notifications/stream');
-        
-        eventSource.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            
-            if (data.type === 'notification') {
-                showNotificationToast(data);
-                updateNotificationCount();
-            }
-        };
-        
-        eventSource.onerror = function(event) {
-            console.log('SSE connection error, reconnecting...');
-            eventSource.close();
-            setTimeout(startSSE, 3000);
-        };
+    function startPolling() {
+        pollInterval = setInterval(() => {
+            fetch('/notifications/poll')
+                .then(response => response.json())
+                .then(data => {
+                    updateNotificationBadge(data.count);
+                    
+                    // Show new notifications
+                    if (data.notifications && data.notifications.length > 0) {
+                        data.notifications.forEach(notification => {
+                            if (!notification.is_read) {
+                                showNotificationToast(notification);
+                            }
+                        });
+                    }
+                })
+                .catch(error => console.log('Error polling notifications:', error));
+        }, 5000); // Poll every 5 seconds
     }
 
     function updateNotificationCount() {
@@ -104,8 +105,8 @@
     document.addEventListener('DOMContentLoaded', initializeNotifications);
     
     window.addEventListener('beforeunload', function() {
-        if (eventSource) {
-            eventSource.close();
+        if (pollInterval) {
+            clearInterval(pollInterval);
         }
     });
     

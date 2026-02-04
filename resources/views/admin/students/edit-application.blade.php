@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <form action="{{ route('students.update', $student) }}" method="POST" class="mt-24">
+    <form action="{{ route('students.update', $student) }}" method="POST" enctype="multipart/form-data" class="mt-24">
         @csrf
         @method('PUT')
         <div class="row gy-3">
@@ -68,6 +68,63 @@
             <div class="col-lg-12">
                 <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
                     <div class="card-header border-bottom bg-base py-16 px-24">
+                        <h6 class="text-lg fw-semibold mb-0">Document Management</h6>
+                    </div>
+                    <div class="card-body p-20">
+                        <div class="row gy-3">
+                            <div class="col-md-6">
+                                <label for="sop" class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Statement of Purpose (SOP)</label>
+                                @if($student->sop)
+                                    <div class="mb-2">
+                                        <a href="{{ route('students.download-document', [$student, 'sop']) }}" class="btn btn-sm btn-outline-primary">Download Current SOP</a>
+                                    </div>
+                                @endif
+                                <input type="file" name="sop" class="form-control" accept=".pdf,.doc,.docx">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="cv" class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Curriculum Vitae (CV)</label>
+                                @if($student->cv)
+                                    <div class="mb-2">
+                                        <a href="{{ route('students.download-document', [$student, 'cv']) }}" class="btn btn-sm btn-outline-primary">Download Current CV</a>
+                                    </div>
+                                @endif
+                                <input type="file" name="cv" class="form-control" accept=".pdf,.doc,.docx">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Documents -->
+            <div class="col-lg-12">
+                <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
+                    <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between">
+                        <h6 class="text-lg fw-semibold mb-0">Additional Documents</h6>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="addDocument()">Add Document</button>
+                    </div>
+                    <div class="card-body p-20">
+                        <div id="additionalDocs">
+                            @if($student->additional_documents)
+                                @foreach(json_decode($student->additional_documents, true) as $doc)
+                                    <div class="row mb-2">
+                                        <div class="col-md-6"><strong>{{ $doc['name'] }}</strong></div>
+                                        <div class="col-md-6">
+                                            @if(isset($doc['file']))
+                                                <a href="{{ asset('storage/' . $doc['file']) }}" target="_blank" class="btn btn-sm btn-outline-primary">Download</a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Management -->
+            <div class="col-lg-12">
+                <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
+                    <div class="card-header border-bottom bg-base py-16 px-24">
                         <h6 class="text-lg fw-semibold mb-0">Application Status Management</h6>
                     </div>
                     <div class="card-body p-20">
@@ -92,6 +149,23 @@
                 </div>
             </div>
 
+            <!-- Notes Section -->
+            <div class="col-lg-12">
+                <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
+                    <div class="card-header border-bottom bg-base py-16 px-24">
+                        <h6 class="text-lg fw-semibold mb-0">Add Application Note</h6>
+                    </div>
+                    <div class="card-body p-20">
+                        <div class="row gy-3">
+                            <div class="col-md-12">
+                                <label for="note" class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Note</label>
+                                <textarea name="note" class="form-control" rows="3" placeholder="Add a note about this student..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Submit Buttons -->
             <div class="col-lg-12">
                 <div class="d-flex align-items-center justify-content-center gap-3">
@@ -106,4 +180,24 @@
         </div>
     </form>
 </div>
+
+<script>
+function addDocument() {
+    const container = document.getElementById('additionalDocs');
+    const html = `
+        <div class="row mb-3 doc-row">
+            <div class="col-md-4">
+                <input type="text" name="app_additional_doc_names[]" class="form-control" placeholder="Document Name" required>
+            </div>
+            <div class="col-md-6">
+                <input type="file" name="app_additional_doc_files[]" class="form-control" accept=".pdf,.doc,.docx" required>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.doc-row').remove()">Remove</button>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+}
+</script>
 @endsection

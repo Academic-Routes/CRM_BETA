@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Models\StudentNote;
 use App\Models\StudentUniversity;
 use App\Models\Department;
 use App\Models\User;
@@ -50,6 +51,7 @@ class StudentController extends Controller
         } elseif ($user->hasRole('Application')) {
             $query = Student::select('id', 'name', 'phone', 'status', 'counselor_id', 'application_staff_id', 'created_at')
                            ->with(['counselor:id,name', 'applicationStaff:id,name'])
+                           ->where('application_staff_id', $user->id)
                            ->whereIn('status', ['Sent to Application', 'Application In Review']);
             
             if ($request->search) {
@@ -102,14 +104,18 @@ class StudentController extends Controller
         $user = Auth::user();
         
         if ($user->hasRole('Counselor')) {
-            // Counselors see students they sent to application (not yet completed)
             $students = Student::with(['counselor', 'applicationStaff'])
                 ->where('counselor_id', $user->id)
                 ->whereIn('status', ['Sent to Application', 'Application In Review'])
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
+        } elseif ($user->hasRole('Application')) {
+            $students = Student::with(['counselor', 'applicationStaff'])
+                ->where('application_staff_id', $user->id)
+                ->whereIn('status', ['Sent to Application', 'Application In Review'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
         } else {
-            // Others see all sent to application (not yet completed)
             $students = Student::with(['counselor', 'applicationStaff'])
                 ->whereIn('status', ['Sent to Application', 'Application In Review'])
                 ->orderBy('created_at', 'desc')
@@ -263,6 +269,14 @@ class StudentController extends Controller
 
     public function show(Student $student)
     {
+        $user = Auth::user();
+        
+        if ($user->hasRole('Application') && $student->application_staff_id !== $user->id) {
+            abort(403);
+        }
+        
+        $student->load(['notes.user', 'universities']);
+        
         return view('admin.students.show', compact('student'));
     }
 
@@ -289,8 +303,7 @@ class StudentController extends Controller
                 return view('admin.students.edit-frontdesk', compact('student', 'counselors'));
             }
         } elseif ($user->hasRole('Application')) {
-            // Application users can only edit status management
-            if (!in_array($student->status, ['Sent to Application', 'Application In Review'])) {
+            if (!in_array($student->status, ['Sent to Application', 'Application In Review']) || $student->application_staff_id !== $user->id) {
                 abort(403);
             }
             
@@ -376,8 +389,40 @@ class StudentController extends Controller
             if ($request->has('counselor_id')) {
                 $studentData['counselor_id'] = $request->counselor_id;
             }
+            
+            // Handle counselor note addition
+            if ($request->has('counselor_note') && $request->counselor_note) {
+                $student->notes()->create([
+                    'user_id' => $user->id,
+                    'type' => 'counselor',
+                    'note' => $request->counselor_note
+                ]);
+                
+                // Notify application staff and management
+                $recipients = collect();
+                if ($student->applicationStaff) {
+                    $recipients->push($student->applicationStaff);
+                }
+                $management = \App\Models\User::whereHas('role', function($q) {
+                    $q->whereIn('name', ['Super Admin', 'Admin', 'Supervisor']);
+                })->where('id', '!=', $user->id)->get();
+                $recipients = $recipients->merge($management)->unique('id');
+                
+                foreach ($recipients as $recipient) {
+                    \App\Models\Notification::createNotification(
+                        'note_added',
+                        'Counselor Note Added',
+                        "Counselor note added for student '{$student->name}' by {$user->name}",
+                        $recipient->id,
+                        $user->id,
+                        ['student_id' => $student->id]
+                    );
+                }
+            }
         } elseif ($user->hasRole('Application')) {
-            // Application users can only update status - skip other fields
+            if ($student->application_staff_id !== $user->id) {
+                abort(403);
+            }
             $studentData = [];
             if ($request->has('status')) {
                 $studentData['status'] = $request->status;
@@ -385,10 +430,68 @@ class StudentController extends Controller
             if ($request->has('application_email')) {
                 $studentData['application_email'] = $request->application_email;
             }
+            
+            // Handle note addition
+            if ($request->has('note') && $request->note) {
+                $student->notes()->create([
+                    'user_id' => $user->id,
+                    'type' => 'application',
+                    'note' => $request->note
+                ]);
+                
+                // Notify counselor and management
+                $recipients = collect();
+                if ($student->counselor) {
+                    $recipients->push($student->counselor);
+                }
+                $management = \App\Models\User::whereHas('role', function($q) {
+                    $q->whereIn('name', ['Super Admin', 'Admin', 'Supervisor']);
+                })->where('id', '!=', $user->id)->get();
+                $recipients = $recipients->merge($management)->unique('id');
+                
+                foreach ($recipients as $recipient) {
+                    \App\Models\Notification::createNotification(
+                        'note_added',
+                        'Application Note Added',
+                        "Application note added for student '{$student->name}' by {$user->name}",
+                        $recipient->id,
+                        $user->id,
+                        ['student_id' => $student->id]
+                    );
+                }
+            }
         }
 
-        // Handle file uploads (skip for Application users)
-        if (!$user->hasRole('Application')) {
+        // Handle file uploads
+        if ($user->hasRole('Application')) {
+            $studentName = preg_replace('/[^A-Za-z0-9_-]/', '_', $student->name);
+            $studentFolder = 'students/' . $studentName . '_' . $student->id . '/files';
+            
+            if ($request->hasFile('sop')) {
+                $studentData['sop'] = $request->file('sop')->store($studentFolder, 'public');
+            }
+            if ($request->hasFile('cv')) {
+                $studentData['cv'] = $request->file('cv')->store($studentFolder, 'public');
+            }
+            
+            if ($request->has('app_additional_doc_names')) {
+                $existingDocs = json_decode($student->additional_documents, true) ?? [];
+                $newDocs = [];
+                
+                foreach ($request->app_additional_doc_names as $index => $name) {
+                    if ($name && $request->hasFile("app_additional_doc_files.{$index}")) {
+                        $newDocs[] = [
+                            'name' => $name,
+                            'file' => $request->file("app_additional_doc_files.{$index}")->store($studentFolder, 'public')
+                        ];
+                    }
+                }
+                
+                if (!empty($newDocs)) {
+                    $studentData['additional_documents'] = json_encode(array_merge($existingDocs, $newDocs));
+                }
+            }
+        } elseif (!$user->hasRole('FrontDesk')) {
             $documentFields = [
                 'passport', 'lor', 'moi', 'cv', 'sop', 'transcripts', 'english_test_doc',
                 'financial_docs', 'birth_certificate', 'medical_certificate', 'student_photo',

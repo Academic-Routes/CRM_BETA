@@ -353,6 +353,35 @@
                 </div>
             </div>
         </div>
+
+        <!-- Notes Section -->
+        @if($student->notes && $student->notes->count() > 0)
+        <div class="col-lg-12">
+            <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
+                <div class="card-header border-bottom bg-base py-16 px-24">
+                    <h6 class="text-lg fw-semibold mb-0">Notes</h6>
+                </div>
+                <div class="card-body p-20">
+                    <div class="row gy-3">
+                        @foreach($student->notes->groupBy('type') as $type => $notes)
+                            <div class="col-md-6">
+                                <h6 class="text-md fw-semibold mb-3 text-{{ $type == 'counselor' ? 'primary' : 'success' }}">{{ ucfirst($type) }} Notes</h6>
+                                @foreach($notes as $note)
+                                    <div class="border border-{{ $type == 'counselor' ? 'primary' : 'success' }}-200 rounded-8 p-12 mb-3">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <small class="text-{{ $type == 'counselor' ? 'primary' : 'success' }} fw-medium">{{ $note->user->name }}</small>
+                                            <small class="text-muted">{{ $note->created_at->format('M d, Y H:i') }}</small>
+                                        </div>
+                                        <p class="mb-0 text-sm">{{ $note->note }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 
