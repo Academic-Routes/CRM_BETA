@@ -354,50 +354,75 @@
                             ];
                         @endphp
                         
-                        @if($academicDocs && count($academicDocs) > 0)
-                            <!-- Show existing academic documents -->
-                            @foreach($academicDocs as $level => $documents)
-                                @if($documents && count($documents) > 0)
-                                <div class="mb-4">
-                                    <h6 class="text-md fw-semibold mb-3 text-primary-light">{{ $levelLabels[$level] ?? ucfirst($level) . ' Documents' }}</h6>
-                                    <div class="row gy-3">
-                                        @foreach($documents as $index => $docPath)
-                                            <div class="col-md-3 mb-3">
-                                                <strong>Document {{ $index + 1 }}:</strong><br>
-                                                @php
-                                                    $extension = pathinfo($docPath, PATHINFO_EXTENSION);
-                                                    $fileUrl = url('/storage/' . $docPath);
-                                                @endphp
-                                                <div class="text-center">
-                                                    @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                                        <div style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
-                                                    @elseif(strtolower($extension) === 'pdf')
-                                                        <div style="width: 80px; height: 80px; background: #dc3545; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; display: flex; align-items: center; justify-content: center; position: relative;">
-                                                            <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
-                                                            <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
-                                                        </div><br>
-                                                    @else
-                                                        <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                                            <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
-                                                        </div><br>
-                                                    @endif
-                                                    <small>{{ strtoupper($extension) }}</small><br>
-                                                    <small class="text-success">Uploaded</small>
+                        <div id="academic-levels-container">
+                            @if($academicDocs && count($academicDocs) > 0)
+                                <!-- Show existing academic documents with delete functionality -->
+                                @foreach($academicDocs as $level => $documents)
+                                    @if($documents && count($documents) > 0)
+                                    <div class="academic-level-item border border-neutral-200 rounded-8 p-16 mb-3" data-level="{{ $level }}">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="text-md fw-semibold mb-0 text-primary-light">{{ $levelLabels[$level] ?? ucfirst($level) . ' Documents' }}</h6>
+                                            <div>
+                                                <button type="button" class="btn btn-primary-600 btn-sm me-2 add-more-to-level" data-level="{{ $level }}">
+                                                    <i class="ri-add-line"></i> Add More
+                                                </button>
+                                                <button type="button" class="btn btn-danger-600 btn-sm delete-academic-level" data-level="{{ $level }}">
+                                                    <i class="ri-delete-bin-line"></i> Delete Level
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row gy-3 existing-documents">
+                                            @foreach($documents as $index => $docPath)
+                                                <div class="col-md-3 mb-3 document-item" data-path="{{ $docPath }}">
+                                                    @php
+                                                        $extension = pathinfo($docPath, PATHINFO_EXTENSION);
+                                                        $fileUrl = url('/storage/' . $docPath);
+                                                    @endphp
+                                                    <div class="text-center position-relative">
+                                                        <button type="button" class="btn btn-danger btn-sm position-absolute" style="top: -8px; right: -8px; z-index: 10; width: 24px; height: 24px; padding: 0; border-radius: 50%;" onclick="deleteDocument('{{ $level }}', '{{ $docPath }}', this)">
+                                                            <i class="ri-close-line" style="font-size: 12px;"></i>
+                                                        </button>
+                                                        @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                                            <div style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
+                                                        @elseif(strtolower($extension) === 'pdf')
+                                                            <div style="width: 80px; height: 80px; background: #dc3545; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; display: flex; align-items: center; justify-content: center; position: relative;">
+                                                                <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
+                                                                <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
+                                                            </div><br>
+                                                        @else
+                                                            <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                                                <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
+                                                            </div><br>
+                                                        @endif
+                                                        <small>{{ strtoupper($extension) }}</small><br>
+                                                        <small class="text-success">Uploaded</small>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="new-documents-container" style="display: none;">
+                                            <div class="row gy-3 mt-2">
+                                                <div class="col-md-12">
+                                                    <label class="text-sm fw-semibold text-secondary-light d-inline-block mb-8">Add New Documents</label>
+                                                    <input type="file" class="form-control new-academic-docs" name="new_academic_documents[{{ $level }}][]" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple>
                                                 </div>
                                             </div>
-                                        @endforeach
+                                        </div>
                                     </div>
-                                </div>
-                                @endif
-                            @endforeach
-                        @else
-                            <!-- Show new academic documents upload interface -->
-                            <div id="academic-levels-container">
+                                    @endif
+                                @endforeach
+                                <button type="button" id="add-academic-level" class="btn btn-primary-600 btn-sm">
+                                    <i class="ri-add-line"></i> Add New Academic Level
+                                </button>
+                            @else
                                 <div class="text-center text-muted py-4" id="no-academic-message">
-                                    <p>Click "Add Academic Level" to upload documents for different academic levels</p>
+                                    <p>Click "Add New Academic Level" to upload documents for different academic levels</p>
                                 </div>
-                            </div>
-                        @endif
+                                <button type="button" id="add-academic-level" class="btn btn-primary-600 btn-sm">
+                                    <i class="ri-add-line"></i> Add Academic Level
+                                </button>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -682,23 +707,83 @@
         form.submit();
     }
     
-    // Academic Documents Management (only if no existing documents)
-    @if(!$student->academic_documents || (is_array($student->academic_documents) && count($student->academic_documents) == 0))
+    // Academic Documents Management
     let academicDocuments = {};
-    let academicLevelCounter = 0;
+    let academicLevelCounter = $('.academic-level-item').length;
+    let documentsToDelete = [];
     
+    // Delete individual document
+    window.deleteDocument = function(level, docPath, button) {
+        if (confirm('Are you sure you want to delete this document?')) {
+            documentsToDelete.push({level: level, path: docPath});
+            $(button).closest('.document-item').remove();
+            
+            // Create hidden input to track deletions
+            const deleteInput = $('<input>', {
+                type: 'hidden',
+                name: 'delete_academic_documents[]',
+                value: JSON.stringify({level: level, path: docPath})
+            });
+            $('form').append(deleteInput);
+            
+            // Check if level is empty and hide if needed
+            const levelContainer = $(`.academic-level-item[data-level="${level}"]`);
+            if (levelContainer.find('.document-item').length === 0) {
+                levelContainer.find('.existing-documents').hide();
+            }
+        }
+    };
+    
+    // Delete entire academic level
+    $(document).on('click', '.delete-academic-level', function() {
+        const level = $(this).data('level');
+        if (confirm('Are you sure you want to delete this entire academic level and all its documents?')) {
+            const levelContainer = $(this).closest('.academic-level-item');
+            
+            // Add all documents in this level to deletion list
+            levelContainer.find('.document-item').each(function() {
+                const docPath = $(this).data('path');
+                documentsToDelete.push({level: level, path: docPath});
+                
+                const deleteInput = $('<input>', {
+                    type: 'hidden',
+                    name: 'delete_academic_documents[]',
+                    value: JSON.stringify({level: level, path: docPath})
+                });
+                $('form').append(deleteInput);
+            });
+            
+            levelContainer.remove();
+            
+            // Show no academic message if no levels left
+            if ($('.academic-level-item').length === 0) {
+                $('#no-academic-message').show();
+            }
+        }
+    });
+    
+    // Add more documents to existing level
+    $(document).on('click', '.add-more-to-level', function() {
+        const level = $(this).data('level');
+        const container = $(this).closest('.academic-level-item').find('.new-documents-container');
+        container.show();
+    });
+    
+    // Add new academic level
     $('#add-academic-level').on('click', function() {
         academicLevelCounter++;
         const levelItem = `
             <div class="academic-level-item border border-neutral-200 rounded-8 p-16 mb-3" data-counter="${academicLevelCounter}">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-md fw-semibold mb-0 text-primary-light">Academic Level ${academicLevelCounter}</h6>
-                    <button type="button" class="btn btn-danger-600 btn-sm remove-academic-level">Remove</button>
+                    <h6 class="text-md fw-semibold mb-0 text-primary-light">New Academic Level</h6>
+                    <button type="button" class="btn btn-danger-600 btn-sm remove-new-academic-level">
+                        <i class="ri-delete-bin-line"></i> Remove
+                    </button>
                 </div>
                 <div class="row gy-3">
                     <div class="col-md-6">
                         <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Select Academic Level</label>
-                        <select class="form-control form-select academic-level-select" data-counter="${academicLevelCounter}">
+                        <select class="form-control form-select academic-level-select" name="new_academic_levels[${academicLevelCounter}][level]" data-counter="${academicLevelCounter}">
                             <option value="">Choose Academic Level</option>
                             <option value="class10">Class 10 Documents</option>
                             <option value="grade12">+2/Grade 12 Documents</option>
@@ -709,37 +794,27 @@
                     </div>
                     <div class="col-md-6">
                         <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Upload Documents</label>
-                        <input type="file" class="form-control academic-documents-input" data-counter="${academicLevelCounter}" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple disabled>
+                        <input type="file" class="form-control academic-documents-input" name="new_academic_levels[${academicLevelCounter}][documents][]" data-counter="${academicLevelCounter}" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple disabled>
                         <small class="text-muted">Select academic level first, then upload files</small>
                     </div>
-                </div>
-                <div class="selected-documents mt-3" style="display: none;">
-                    <h6 class="text-sm fw-semibold mb-2 text-secondary-light">Selected Documents</h6>
-                    <div class="documents-list row gy-2"></div>
                 </div>
             </div>
         `;
         
         $('#academic-levels-container').append(levelItem);
         $('#no-academic-message').hide();
-        updateRemoveButtons();
     });
     
-    // Remove academic level
-    $(document).on('click', '.remove-academic-level', function() {
-        const counter = $(this).closest('.academic-level-item').data('counter');
-        delete academicDocuments[counter];
+    // Remove new academic level
+    $(document).on('click', '.remove-new-academic-level', function() {
         $(this).closest('.academic-level-item').remove();
         
         if ($('.academic-level-item').length === 0) {
             $('#no-academic-message').show();
         }
-        
-        updateRemoveButtons();
-        createHiddenInputs();
     });
     
-    // Academic level selection
+    // Academic level selection for new levels
     $(document).on('change', '.academic-level-select', function() {
         const counter = $(this).data('counter');
         const level = $(this).val();
@@ -753,100 +828,6 @@
             fileInput.siblings('small').text('Select academic level first, then upload files');
         }
     });
-    
-    // File upload handling
-    $(document).on('change', '.academic-documents-input', function() {
-        const counter = $(this).data('counter');
-        const levelSelect = $(this).closest('.academic-level-item').find('.academic-level-select');
-        const level = levelSelect.val();
-        const files = this.files;
-        
-        if (level && files.length > 0) {
-            const key = `${counter}_${level}`;
-            
-            if (!academicDocuments[key]) {
-                academicDocuments[key] = [];
-            }
-            
-            // Add new files
-            for (let i = 0; i < files.length; i++) {
-                academicDocuments[key].push(files[i]);
-            }
-            
-            displaySelectedDocuments(counter, level);
-            createHiddenInputs();
-        }
-    });
-    
-    // Display selected documents
-    function displaySelectedDocuments(counter, level) {
-        const key = `${counter}_${level}`;
-        const levelItem = $(`.academic-level-item[data-counter="${counter}"]`);
-        const documentsDiv = levelItem.find('.selected-documents');
-        const documentsList = levelItem.find('.documents-list');
-        
-        if (academicDocuments[key] && academicDocuments[key].length > 0) {
-            documentsDiv.show();
-            documentsList.empty();
-            
-            academicDocuments[key].forEach((file, index) => {
-                const fileItem = `
-                    <div class="col-md-6 mb-2">
-                        <div class="border border-neutral-200 rounded-6 p-2 d-flex justify-content-between align-items-center">
-                            <span class="text-sm">${file.name}</span>
-                            <button type="button" class="btn btn-danger btn-sm remove-academic-doc" data-key="${key}" data-index="${index}">
-                                <i class="ri-close-line"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                documentsList.append(fileItem);
-            });
-        } else {
-            documentsDiv.hide();
-        }
-    }
-    
-    // Remove individual document
-    $(document).on('click', '.remove-academic-doc', function() {
-        const key = $(this).data('key');
-        const index = $(this).data('index');
-        
-        academicDocuments[key].splice(index, 1);
-        
-        if (academicDocuments[key].length === 0) {
-            delete academicDocuments[key];
-        }
-        
-        const [counter, level] = key.split('_');
-        displaySelectedDocuments(parseInt(counter), level);
-        createHiddenInputs();
-    });
-    
-    // Create hidden inputs for form submission
-    function createHiddenInputs() {
-        // Remove existing hidden inputs
-        $('input[name^="academic_documents"]').remove();
-        
-        Object.keys(academicDocuments).forEach(key => {
-            const [counter, level] = key.split('_');
-            academicDocuments[key].forEach((file, index) => {
-                const input = $('<input>', {
-                    type: 'file',
-                    name: `academic_documents[${level}][]`,
-                    style: 'display: none;'
-                });
-                
-                // Create a new FileList with just this file
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                input[0].files = dt.files;
-                
-                $('form').append(input);
-            });
-        });
-    }
-    @endif
 </script>
 @endpush
 @endsection

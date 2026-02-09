@@ -572,6 +572,66 @@ class StudentController extends Controller
                 }
                 $studentData['additional_documents'] = $additionalDocs;
             }
+            
+            // Handle academic documents deletion and addition
+            $currentAcademicDocs = is_string($student->academic_documents) ? json_decode($student->academic_documents, true) : $student->academic_documents;
+            $currentAcademicDocs = $currentAcademicDocs ?? [];
+            
+            // Handle deletions
+            if ($request->has('delete_academic_documents')) {
+                foreach ($request->delete_academic_documents as $deleteData) {
+                    $deleteInfo = json_decode($deleteData, true);
+                    $level = $deleteInfo['level'];
+                    $path = $deleteInfo['path'];
+                    
+                    if (isset($currentAcademicDocs[$level])) {
+                        $currentAcademicDocs[$level] = array_filter($currentAcademicDocs[$level], function($docPath) use ($path) {
+                            return $docPath !== $path;
+                        });
+                        
+                        // Remove level if empty
+                        if (empty($currentAcademicDocs[$level])) {
+                            unset($currentAcademicDocs[$level]);
+                        }
+                        
+                        // Delete physical file
+                        if (Storage::disk('public')->exists($path)) {
+                            Storage::disk('public')->delete($path);
+                        }
+                    }
+                }
+            }
+            
+            // Handle new documents for existing levels
+            if ($request->hasFile('new_academic_documents')) {
+                foreach ($request->file('new_academic_documents') as $level => $files) {
+                    if (!isset($currentAcademicDocs[$level])) {
+                        $currentAcademicDocs[$level] = [];
+                    }
+                    
+                    foreach ($files as $file) {
+                        $currentAcademicDocs[$level][] = $file->store($studentFolder, 'public');
+                    }
+                }
+            }
+            
+            // Handle new academic levels
+            if ($request->has('new_academic_levels')) {
+                foreach ($request->new_academic_levels as $levelData) {
+                    if (isset($levelData['level']) && $levelData['level'] && isset($levelData['documents'])) {
+                        $level = $levelData['level'];
+                        if (!isset($currentAcademicDocs[$level])) {
+                            $currentAcademicDocs[$level] = [];
+                        }
+                        
+                        foreach ($levelData['documents'] as $file) {
+                            $currentAcademicDocs[$level][] = $file->store($studentFolder, 'public');
+                        }
+                    }
+                }
+            }
+            
+            $studentData['academic_documents'] = json_encode($currentAcademicDocs);
         }
 
         // Store original values before update for comparison
