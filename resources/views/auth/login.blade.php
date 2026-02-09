@@ -11,7 +11,7 @@
 
     <div class="d-lg-flex bg-white">
         <div class="w-50 d-lg-flex d-none overflow-hidden">
-            <img src="/admin/assets/images/thumbs/login-img.png" alt="Login Image" class="w-100 h-100 object-fit-cover">
+            <img src="/admin/assets/images/thumbs/loginn.jpg" alt="Login Image" class="w-100 h-100 object-fit-cover">
         </div>
         <div class="lg-w-50 px-24 py-32 d-flex justify-content-center align-items-center">
             <div class="max-w-540-px mx-auto">

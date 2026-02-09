@@ -76,6 +76,7 @@ class Student extends Model
         
         // Additional Documents
         'additional_documents',
+        'academic_documents',
         
         // System fields
         'counselor_id',
@@ -87,6 +88,7 @@ class Student extends Model
     protected $casts = [
         'date_of_birth' => 'date',
         'additional_documents' => 'array',
+        'academic_documents' => 'array',
     ];
 
     public function counselor()

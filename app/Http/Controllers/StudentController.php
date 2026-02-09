@@ -249,12 +249,17 @@ class StudentController extends Controller
         }
         $studentData['additional_documents'] = json_encode($additionalDocs);
 
-        // Handle other qualification names
-        $studentData['class10_other_name'] = $request->class10_other_name;
-        $studentData['diploma_other_name'] = $request->diploma_other_name;
-        $studentData['grade12_other_name'] = $request->grade12_other_name;
-        $studentData['bachelor_other_name'] = $request->bachelor_other_name;
-        $studentData['masters_other_name'] = $request->masters_other_name;
+        // Handle academic documents
+        $academicDocs = [];
+        if ($request->has('academic_documents')) {
+            foreach ($request->file('academic_documents') as $level => $files) {
+                $academicDocs[$level] = [];
+                foreach ($files as $file) {
+                    $academicDocs[$level][] = $file->store($studentFolder, 'public');
+                }
+            }
+        }
+        $studentData['academic_documents'] = json_encode($academicDocs);
 
         $student = Student::create($studentData);
         

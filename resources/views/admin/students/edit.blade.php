@@ -231,9 +231,9 @@
                                 <input type="file" name="lor" class="form-control" accept=".pdf,.doc,.docx">
                                 @if($student->lor)<small class="text-success">Current: {{ basename($student->lor) }}</small>@endif
                             </div>
-                            <!-- MOI -->
+                            <!-- Medium of Instruction -->
                             <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Motivation of Interest (MOI)</label>
+                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Medium of Instruction</label>
                                 <input type="file" name="moi" class="form-control" accept=".pdf,.doc,.docx">
                                 @if($student->moi)<small class="text-success">Current: {{ basename($student->moi) }}</small>@endif
                             </div>
@@ -336,164 +336,68 @@
                 <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
                     <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between">
                         <h6 class="text-lg fw-semibold mb-0">Academic Documents</h6>
+                        @if(!$student->academic_documents || (is_array($student->academic_documents) && count($student->academic_documents) == 0))
+                            <button type="button" id="add-academic-level" class="btn btn-primary-600 btn-sm">
+                                <i class="ri-add-line"></i> Add Academic Level
+                            </button>
+                        @endif
                     </div>
                     <div class="card-body p-20">
-                        <div id="document-sections">
-                            <!-- Class 10 Documents -->
-                            <div class="document-section" id="class10-docs">
-                                <h6 class="text-md fw-semibold mb-3 text-primary-light">Class 10 Documents</h6>
-                                <div class="row gy-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Marksheet</label>
-                                        <input type="file" name="class10_marksheet" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->class10_marksheet)<small class="text-success">Current: {{ basename($student->class10_marksheet) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Certificate</label>
-                                        <input type="file" name="class10_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->class10_certificate)<small class="text-success">Current: {{ basename($student->class10_certificate) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Character</label>
-                                        <input type="file" name="class10_character" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->class10_character)<small class="text-success">Current: {{ basename($student->class10_character) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Others (Please specify)</label>
-                                        <input type="text" name="class10_other_name" class="form-control mb-2" value="{{ $student->class10_other_name }}" placeholder="Document name">
-                                        <input type="file" name="class10_other_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->class10_other_file)<small class="text-success">Current: {{ basename($student->class10_other_file) }}</small>@endif
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Diploma Documents -->
-                            <div class="document-section" id="diploma-docs">
-                                <h6 class="text-md fw-semibold mb-3 text-primary-light">Diploma Documents</h6>
-                                <div class="row gy-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Marksheet</label>
-                                        <input type="file" name="diploma_marksheet" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->diploma_marksheet)<small class="text-success">Current: {{ basename($student->diploma_marksheet) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Certificate</label>
-                                        <input type="file" name="diploma_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->diploma_certificate)<small class="text-success">Current: {{ basename($student->diploma_certificate) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Character</label>
-                                        <input type="file" name="diploma_character" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->diploma_character)<small class="text-success">Current: {{ basename($student->diploma_character) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Registration</label>
-                                        <input type="file" name="diploma_registration" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->diploma_registration)<small class="text-success">Current: {{ basename($student->diploma_registration) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Others (Please specify)</label>
-                                        <input type="text" name="diploma_other_name" class="form-control mb-2" value="{{ $student->diploma_other_name }}" placeholder="Document name">
-                                        <input type="file" name="diploma_other_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->diploma_other_file)<small class="text-success">Current: {{ basename($student->diploma_other_file) }}</small>@endif
+                        @php
+                            $academicDocs = is_string($student->academic_documents) ? json_decode($student->academic_documents, true) : $student->academic_documents;
+                            $levelLabels = [
+                                'class10' => 'Class 10 Documents',
+                                'grade12' => '+2/Grade 12 Documents',
+                                'diploma' => 'Diploma Documents',
+                                'bachelor' => 'Bachelor Documents',
+                                'masters' => 'Masters Documents'
+                            ];
+                        @endphp
+                        
+                        @if($academicDocs && count($academicDocs) > 0)
+                            <!-- Show existing academic documents -->
+                            @foreach($academicDocs as $level => $documents)
+                                @if($documents && count($documents) > 0)
+                                <div class="mb-4">
+                                    <h6 class="text-md fw-semibold mb-3 text-primary-light">{{ $levelLabels[$level] ?? ucfirst($level) . ' Documents' }}</h6>
+                                    <div class="row gy-3">
+                                        @foreach($documents as $index => $docPath)
+                                            <div class="col-md-3 mb-3">
+                                                <strong>Document {{ $index + 1 }}:</strong><br>
+                                                @php
+                                                    $extension = pathinfo($docPath, PATHINFO_EXTENSION);
+                                                    $fileUrl = url('/storage/' . $docPath);
+                                                @endphp
+                                                <div class="text-center">
+                                                    @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                                        <div style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
+                                                    @elseif(strtolower($extension) === 'pdf')
+                                                        <div style="width: 80px; height: 80px; background: #dc3545; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; display: flex; align-items: center; justify-content: center; position: relative;">
+                                                            <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
+                                                            <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
+                                                        </div><br>
+                                                    @else
+                                                        <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                                            <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
+                                                        </div><br>
+                                                    @endif
+                                                    <small>{{ strtoupper($extension) }}</small><br>
+                                                    <small class="text-success">Uploaded</small>
+                                                </div>
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Grade 12 Documents -->
-                            <div class="document-section" id="grade12-docs">
-                                <h6 class="text-md fw-semibold mb-3 text-primary-light">Grade 12 Documents</h6>
-                                <div class="row gy-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Transcript</label>
-                                        <input type="file" name="grade12_transcript" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->grade12_transcript)<small class="text-success">Current: {{ basename($student->grade12_transcript) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Provisional</label>
-                                        <input type="file" name="grade12_provisional" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->grade12_provisional)<small class="text-success">Current: {{ basename($student->grade12_provisional) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Migrational</label>
-                                        <input type="file" name="grade12_migrational" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->grade12_migrational)<small class="text-success">Current: {{ basename($student->grade12_migrational) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Character</label>
-                                        <input type="file" name="grade12_character" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->grade12_character)<small class="text-success">Current: {{ basename($student->grade12_character) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Others (Please specify)</label>
-                                        <input type="text" name="grade12_other_name" class="form-control mb-2" value="{{ $student->grade12_other_name }}" placeholder="Document name">
-                                        <input type="file" name="grade12_other_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->grade12_other_file)<small class="text-success">Current: {{ basename($student->grade12_other_file) }}</small>@endif
-                                    </div>
+                                @endif
+                            @endforeach
+                        @else
+                            <!-- Show new academic documents upload interface -->
+                            <div id="academic-levels-container">
+                                <div class="text-center text-muted py-4" id="no-academic-message">
+                                    <p>Click "Add Academic Level" to upload documents for different academic levels</p>
                                 </div>
                             </div>
-                            
-                            <!-- Bachelor Documents -->
-                            <div class="document-section" id="bachelor-docs">
-                                <h6 class="text-md fw-semibold mb-3 text-primary-light">Bachelor Documents</h6>
-                                <div class="row gy-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Transcript</label>
-                                        <input type="file" name="bachelor_transcript" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->bachelor_transcript)<small class="text-success">Current: {{ basename($student->bachelor_transcript) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Degree</label>
-                                        <input type="file" name="bachelor_degree" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->bachelor_degree)<small class="text-success">Current: {{ basename($student->bachelor_degree) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Provisional</label>
-                                        <input type="file" name="bachelor_provisional" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->bachelor_provisional)<small class="text-success">Current: {{ basename($student->bachelor_provisional) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Character</label>
-                                        <input type="file" name="bachelor_character" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->bachelor_character)<small class="text-success">Current: {{ basename($student->bachelor_character) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Others (Please specify)</label>
-                                        <input type="text" name="bachelor_other_name" class="form-control mb-2" value="{{ $student->bachelor_other_name }}" placeholder="Document name">
-                                        <input type="file" name="bachelor_other_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->bachelor_other_file)<small class="text-success">Current: {{ basename($student->bachelor_other_file) }}</small>@endif
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Masters Documents -->
-                            <div class="document-section" id="masters-docs">
-                                <h6 class="text-md fw-semibold mb-3 text-primary-light">Masters Documents</h6>
-                                <div class="row gy-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Transcript</label>
-                                        <input type="file" name="masters_transcript" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->masters_transcript)<small class="text-success">Current: {{ basename($student->masters_transcript) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Degree</label>
-                                        <input type="file" name="masters_degree" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->masters_degree)<small class="text-success">Current: {{ basename($student->masters_degree) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Provisional</label>
-                                        <input type="file" name="masters_provisional" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->masters_provisional)<small class="text-success">Current: {{ basename($student->masters_provisional) }}</small>@endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Others (Please specify)</label>
-                                        <input type="text" name="masters_other_name" class="form-control mb-2" value="{{ $student->masters_other_name }}" placeholder="Document name">
-                                        <input type="file" name="masters_other_file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                        @if($student->masters_other_file)<small class="text-success">Current: {{ basename($student->masters_other_file) }}</small>@endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -777,6 +681,172 @@
         document.body.appendChild(form);
         form.submit();
     }
+    
+    // Academic Documents Management (only if no existing documents)
+    @if(!$student->academic_documents || (is_array($student->academic_documents) && count($student->academic_documents) == 0))
+    let academicDocuments = {};
+    let academicLevelCounter = 0;
+    
+    $('#add-academic-level').on('click', function() {
+        academicLevelCounter++;
+        const levelItem = `
+            <div class="academic-level-item border border-neutral-200 rounded-8 p-16 mb-3" data-counter="${academicLevelCounter}">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-md fw-semibold mb-0 text-primary-light">Academic Level ${academicLevelCounter}</h6>
+                    <button type="button" class="btn btn-danger-600 btn-sm remove-academic-level">Remove</button>
+                </div>
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Select Academic Level</label>
+                        <select class="form-control form-select academic-level-select" data-counter="${academicLevelCounter}">
+                            <option value="">Choose Academic Level</option>
+                            <option value="class10">Class 10 Documents</option>
+                            <option value="grade12">+2/Grade 12 Documents</option>
+                            <option value="diploma">Diploma Documents</option>
+                            <option value="bachelor">Bachelor Documents</option>
+                            <option value="masters">Masters Documents</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Upload Documents</label>
+                        <input type="file" class="form-control academic-documents-input" data-counter="${academicLevelCounter}" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple disabled>
+                        <small class="text-muted">Select academic level first, then upload files</small>
+                    </div>
+                </div>
+                <div class="selected-documents mt-3" style="display: none;">
+                    <h6 class="text-sm fw-semibold mb-2 text-secondary-light">Selected Documents</h6>
+                    <div class="documents-list row gy-2"></div>
+                </div>
+            </div>
+        `;
+        
+        $('#academic-levels-container').append(levelItem);
+        $('#no-academic-message').hide();
+        updateRemoveButtons();
+    });
+    
+    // Remove academic level
+    $(document).on('click', '.remove-academic-level', function() {
+        const counter = $(this).closest('.academic-level-item').data('counter');
+        delete academicDocuments[counter];
+        $(this).closest('.academic-level-item').remove();
+        
+        if ($('.academic-level-item').length === 0) {
+            $('#no-academic-message').show();
+        }
+        
+        updateRemoveButtons();
+        createHiddenInputs();
+    });
+    
+    // Academic level selection
+    $(document).on('change', '.academic-level-select', function() {
+        const counter = $(this).data('counter');
+        const level = $(this).val();
+        const fileInput = $(this).closest('.academic-level-item').find('.academic-documents-input');
+        
+        if (level) {
+            fileInput.prop('disabled', false);
+            fileInput.siblings('small').text('You can upload multiple files (PDF, Images, Word documents)');
+        } else {
+            fileInput.prop('disabled', true);
+            fileInput.siblings('small').text('Select academic level first, then upload files');
+        }
+    });
+    
+    // File upload handling
+    $(document).on('change', '.academic-documents-input', function() {
+        const counter = $(this).data('counter');
+        const levelSelect = $(this).closest('.academic-level-item').find('.academic-level-select');
+        const level = levelSelect.val();
+        const files = this.files;
+        
+        if (level && files.length > 0) {
+            const key = `${counter}_${level}`;
+            
+            if (!academicDocuments[key]) {
+                academicDocuments[key] = [];
+            }
+            
+            // Add new files
+            for (let i = 0; i < files.length; i++) {
+                academicDocuments[key].push(files[i]);
+            }
+            
+            displaySelectedDocuments(counter, level);
+            createHiddenInputs();
+        }
+    });
+    
+    // Display selected documents
+    function displaySelectedDocuments(counter, level) {
+        const key = `${counter}_${level}`;
+        const levelItem = $(`.academic-level-item[data-counter="${counter}"]`);
+        const documentsDiv = levelItem.find('.selected-documents');
+        const documentsList = levelItem.find('.documents-list');
+        
+        if (academicDocuments[key] && academicDocuments[key].length > 0) {
+            documentsDiv.show();
+            documentsList.empty();
+            
+            academicDocuments[key].forEach((file, index) => {
+                const fileItem = `
+                    <div class="col-md-6 mb-2">
+                        <div class="border border-neutral-200 rounded-6 p-2 d-flex justify-content-between align-items-center">
+                            <span class="text-sm">${file.name}</span>
+                            <button type="button" class="btn btn-danger btn-sm remove-academic-doc" data-key="${key}" data-index="${index}">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                documentsList.append(fileItem);
+            });
+        } else {
+            documentsDiv.hide();
+        }
+    }
+    
+    // Remove individual document
+    $(document).on('click', '.remove-academic-doc', function() {
+        const key = $(this).data('key');
+        const index = $(this).data('index');
+        
+        academicDocuments[key].splice(index, 1);
+        
+        if (academicDocuments[key].length === 0) {
+            delete academicDocuments[key];
+        }
+        
+        const [counter, level] = key.split('_');
+        displaySelectedDocuments(parseInt(counter), level);
+        createHiddenInputs();
+    });
+    
+    // Create hidden inputs for form submission
+    function createHiddenInputs() {
+        // Remove existing hidden inputs
+        $('input[name^="academic_documents"]').remove();
+        
+        Object.keys(academicDocuments).forEach(key => {
+            const [counter, level] = key.split('_');
+            academicDocuments[key].forEach((file, index) => {
+                const input = $('<input>', {
+                    type: 'file',
+                    name: `academic_documents[${level}][]`,
+                    style: 'display: none;'
+                });
+                
+                // Create a new FileList with just this file
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input[0].files = dt.files;
+                
+                $('form').append(input);
+            });
+        });
+    }
+    @endif
 </script>
 @endpush
 @endsection
