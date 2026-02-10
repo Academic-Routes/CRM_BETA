@@ -396,7 +396,7 @@
                             $additionalDocs = is_string($student->additional_documents) ? json_decode($student->additional_documents, true) : $student->additional_documents;
                         @endphp
                         @if($additionalDocs && count($additionalDocs) > 0)
-                            @foreach($additionalDocs as $index => $doc)
+                            @fo@foreach($additionalDocs as $index => $doc)
                                 @if(isset($doc['name']) && isset($doc['file']))
                                 <div class="col-md-3 mb-3">
                                     <strong>{{ $doc['name'] }}:</strong><br>
@@ -447,7 +447,7 @@
                         <iconify-icon icon="solar:document-text-bold" class="me-2 text-primary"></iconify-icon>
                         <span class="fw-semibold text-dark" id="documentModalTitle">Document Preview</span>
                     </div>
-                    <a href="#" id="downloadBtn" class="btn btn-success shadow-lg" style="border-radius: 25px; padding: 12px 24px; font-weight: 600; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; transition: all 0.3s ease;" download onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(40,167,69,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
+                    <a href="#" id="downloadBtn" class="btn btn-success shadow-lg" style="border-radius: 25px; padding: 12px 24px; font-weight: 600; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(40,167,69,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'">
                         <iconify-icon icon="solar:download-bold" class="me-2"></iconify-icon>
                         Download
                     </a>
@@ -491,7 +491,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function showDocumentModal(fileUrl, fileType, title) {
         document.getElementById('documentModalTitle').textContent = title;
-        document.getElementById('downloadBtn').href = fileUrl;
+        
+        // Set download with proper filename
+        const downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.href = fileUrl;
+        downloadBtn.download = title + '.' + fileType;
+        
         const content = document.getElementById('documentContent');
         const spinner = document.getElementById('loadingSpinner');
         
@@ -503,12 +508,32 @@ document.addEventListener('DOMContentLoaded', function() {
             spinner.classList.add('d-none');
             
             if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
-                content.innerHTML = `
-                    <img src="${fileUrl}" style="max-width: 95%; max-height: 95%; object-fit: contain; box-shadow: 0 10px 40px rgba(255,255,255,0.1);" onload="this.style.opacity=1" style="opacity: 0; transition: opacity 0.5s ease;">
-                `;
+                const img = new Image();
+                img.onload = function() {
+                    content.innerHTML = `
+                        <img src="${fileUrl}" style="max-width: 95%; max-height: 95%; object-fit: contain; box-shadow: 0 10px 40px rgba(255,255,255,0.1);">
+                    `;
+                };
+                img.onerror = function() {
+                    content.innerHTML = `
+                        <div style="padding: 60px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                            <h5 style="color: #fff;">Image failed to load</h5>
+                            <p style="color: rgba(255,255,255,0.8);">The image could not be displayed.</p>
+                            <a href="${fileUrl}" class="btn btn-light" download="${title}.${fileType}">Download File</a>
+                        </div>
+                    `;
+                };
+                img.src = fileUrl;
             } else if (fileType === 'pdf') {
+                // Try iframe first, fallback to embed
                 content.innerHTML = `
-                    <embed src="${fileUrl}" type="application/pdf" width="100%" height="100%" style="border: none;">
+                    <iframe src="${fileUrl}" width="100%" height="100%" style="border: none;" 
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"></iframe>
+                    <div style="display: none; padding: 60px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                        <h5 style="color: #fff;">PDF Preview Unavailable</h5>
+                        <p style="color: rgba(255,255,255,0.8);">Click download to view the PDF file.</p>
+                        <a href="${fileUrl}" class="btn btn-light" download="${title}.${fileType}">Download PDF</a>
+                    </div>
                 `;
             } else {
                 content.innerHTML = `
@@ -516,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <iconify-icon icon="solar:file-text-bold" style="font-size: 64px; color: #fff; margin-bottom: 20px;"></iconify-icon>
                         <h5 style="color: #fff; margin-bottom: 10px;">Preview not available</h5>
                         <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">This file type cannot be previewed in the browser.</p>
-                        <a href="${fileUrl}" class="btn btn-light" style="border-radius: 25px; padding: 12px 25px; font-weight: 600;" download>
+                        <a href="${fileUrl}" class="btn btn-light" style="border-radius: 25px; padding: 12px 25px; font-weight: 600;" download="${title}.${fileType}">
                             <iconify-icon icon="solar:download-bold" class="me-2"></iconify-icon>
                             Download File
                         </a>
