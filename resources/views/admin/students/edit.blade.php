@@ -307,7 +307,7 @@
                                                 @php
                                                     $docPath = $student->$field;
                                                     $extension = pathinfo($docPath, PATHINFO_EXTENSION);
-                                                    $fileUrl = url('/storage/' . $docPath);
+                                                    $fileUrl = route('students.download-document', [$student, $field]);
                                                     $fileName = basename($docPath);
                                                 @endphp
                                                 <div class="text-center mb-3">
@@ -376,7 +376,7 @@
                                                             @php
                                                                 $docPath = $doc['file'] ?? '';
                                                                 $extension = pathinfo($docPath, PATHINFO_EXTENSION);
-                                                                $fileUrl = url('/storage/' . $docPath);
+                                                                $fileUrl = route('students.download-additional-document', [$student, $index]);
                                                                 $fileName = $doc['name'] ?? basename($docPath);
                                                             @endphp
                                                             <div class="mb-3">
@@ -474,7 +474,7 @@
                                                         <div class="card-body p-3 text-center">
                                                             @php
                                                                 $extension = pathinfo($docPath, PATHINFO_EXTENSION);
-                                                                $fileUrl = url('/storage/' . $docPath);
+                                                                $fileUrl = route('students.download-academic-document', [$student, $level, $index]);
                                                                 $fileName = basename($docPath);
                                                             @endphp
                                                             <div class="mb-3">
