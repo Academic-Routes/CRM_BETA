@@ -376,7 +376,6 @@
                                                 @php
                                                     $extension = pathinfo($docPath, PATHINFO_EXTENSION);
                                                 @endphp
-                                                <h6 class="mb-3 fw-semibold text-dark">Document {{ $index + 1 }}</h6>
                                                 @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
                                                     <div style="width: 120px; height: 120px; background: url('{{ route('students.preview-academic-document', [$student, $level, $index]) }}') center/cover; border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px;"></div>
                                                 @elseif(strtolower($extension) === 'pdf')
