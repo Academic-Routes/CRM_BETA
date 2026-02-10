@@ -433,6 +433,37 @@
         </div>
         @endif
     </div>
+
+    <!-- Notes Section -->
+    @if($student->notes && $student->notes->count() > 0)
+    <div class="row gy-3 mt-3">
+        <div class="col-lg-12">
+            <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
+                <div class="card-header border-bottom bg-base py-16 px-24">
+                    <h6 class="text-lg fw-semibold mb-0">Notes</h6>
+                </div>
+                <div class="card-body p-20">
+                    @foreach($student->notes->sortByDesc('created_at') as $note)
+                    <div class="card mb-3 border-start border-3 {{ $note->type === 'counselor' ? 'border-primary' : 'border-success' }}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="badge bg-{{ $note->type === 'counselor' ? 'primary' : 'success' }} mb-2">
+                                        {{ ucfirst($note->type) }} Note
+                                    </span>
+                                    <h6 class="mb-1">{{ $note->user->name }}</h6>
+                                    <small class="text-muted">{{ $note->created_at->format('M d, Y h:i A') }}</small>
+                                </div>
+                            </div>
+                            <p class="mb-0 mt-2">{{ $note->note }}</p>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 <div class="modal fade" id="documentModal" tabindex="-1" data-bs-backdrop="static">
