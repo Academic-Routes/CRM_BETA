@@ -396,7 +396,7 @@
                             $additionalDocs = is_string($student->additional_documents) ? json_decode($student->additional_documents, true) : $student->additional_documents;
                         @endphp
                         @if($additionalDocs && count($additionalDocs) > 0)
-                            @fo@foreach($additionalDocs as $index => $doc)
+                            @foreach($additionalDocs as $index => $doc)
                                 @if(isset($doc['name']) && isset($doc['file']))
                                 <div class="col-md-3 mb-3">
                                     <strong>{{ $doc['name'] }}:</strong><br>
