@@ -80,6 +80,22 @@
             document.getElementById('password').value = password;
             document.querySelector('form').submit();
         }
+        
+        // Password visibility toggle
+        document.querySelector('.toggle-password').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const icon = this;
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('ri-eye-line');
+                icon.classList.add('ri-eye-off-line');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('ri-eye-off-line');
+                icon.classList.add('ri-eye-line');
+            }
+        });
     </script>
 </body>
 </html>
