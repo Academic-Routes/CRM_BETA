@@ -96,7 +96,9 @@
             
             <!-- Pagination -->
             <div class="d-flex justify-content-center mt-3">
-                {{ $students->appends(request()->query())->links() }}
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $students->appends(request()->query())->links('pagination::bootstrap-5') }}
+                </div>
             </div>
         </div>
     </div>
