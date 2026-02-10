@@ -377,17 +377,18 @@
                                                             @php
                                                                 $docPath = $doc['file'] ?? '';
                                                                 $extension = pathinfo($docPath, PATHINFO_EXTENSION);
-                                                                $fileUrl = route('students.download-additional-document', [$student, $index]);
+                                                                $previewUrl = route('students.preview-additional-document', [$student, $index]);
+                                                                $downloadUrl = route('students.download-additional-document', [$student, $index]);
                                                                 $fileName = $doc['name'] ?? basename($docPath);
                                                             @endphp
                                                             <div class="mb-3">
                                                                 @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                                                    <div class="document-preview" style="width: 70px; height: 70px; background: url('{{ $fileUrl }}') center/cover; border-radius: 8px; margin: 0 auto; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')"></div>
+                                                                    <div class="document-preview" style="width: 70px; height: 70px; background: url('{{ $previewUrl }}') center/cover; border-radius: 8px; margin: 0 auto; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="previewDocument('{{ $previewUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}', '{{ $downloadUrl }}')"></div>
                                                                 @elseif(strtolower($extension) === 'pdf')
-                                                                    <div class="document-preview" style="width: 70px; height: 70px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(220,53,69,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')">                                                                        <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
+                                                                    <div class="document-preview" style="width: 70px; height: 70px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(220,53,69,0.3);" onclick="previewDocument('{{ $previewUrl }}', '{{ $fileName }}', 'pdf', '{{ $downloadUrl }}')">                                                                        <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
                                                                     </div>
                                                                 @else
-                                                                    <div class="document-preview" style="width: 70px; height: 70px; background: linear-gradient(135deg, #6c757d, #5a6268); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(108,117,125,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')">                                                                        <i class="fas fa-file-alt" style="font-size: 24px; color: white;"></i>
+                                                                    <div class="document-preview" style="width: 70px; height: 70px; background: linear-gradient(135deg, #6c757d, #5a6268); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(108,117,125,0.3);" onclick="previewDocument('{{ $previewUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}', '{{ $downloadUrl }}')">                                                                        <i class="fas fa-file-alt" style="font-size: 24px; color: white;"></i>
                                                                     </div>
                                                                 @endif
                                                             </div>
@@ -396,10 +397,10 @@
                                                                 <h6 class="small fw-semibold mb-0">{{ $fileName }}</h6>
                                                             </div>
                                                             <div class="btn-group w-100" role="group">
-                                                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')" title="Preview">
+                                                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewDocument('{{ $previewUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}', '{{ $downloadUrl }}')" title="Preview">
                                                                     <i class="ri-eye-line"></i>
                                                                 </button>
-                                                                <a href="{{ route('students.download-additional-document', [$student, $index]) }}" class="btn btn-outline-success btn-sm" title="Download">
+                                                                <a href="{{ $downloadUrl }}" class="btn btn-outline-success btn-sm" title="Download">
                                                                     <i class="ri-download-line"></i>
                                                                 </a>
                                                                 <button type="button" class="btn btn-outline-danger btn-sm delete-additional-doc-btn" data-index="{{ $index }}" data-student-id="{{ $student->id }}" title="Remove">
@@ -475,18 +476,19 @@
                                                         <div class="card-body p-3 text-center">
                                                             @php
                                                                 $extension = pathinfo($docPath, PATHINFO_EXTENSION);
-                                                                $fileUrl = route('students.download-academic-document', [$student, $level, $index]);
+                                                                $previewUrl = route('students.preview-academic-document', [$student, $level, $index]);
+                                                                $downloadUrl = route('students.download-academic-document', [$student, $level, $index]);
                                                                 $fileName = basename($docPath);
                                                             @endphp
                                                             <div class="mb-3">
                                                                 @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                                                    <div class="document-preview" style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border-radius: 8px; margin: 0 auto; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')"></div>
+                                                                    <div class="document-preview" style="width: 80px; height: 80px; background: url('{{ $previewUrl }}') center/cover; border-radius: 8px; margin: 0 auto; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="previewDocument('{{ $previewUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}', '{{ $downloadUrl }}')"></div>
                                                                 @elseif(strtolower($extension) === 'pdf')
-                                                                    <div class="document-preview" style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(220,53,69,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', 'pdf')">
+                                                                    <div class="document-preview" style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(220,53,69,0.3);" onclick="previewDocument('{{ $previewUrl }}', '{{ $fileName }}', 'pdf', '{{ $downloadUrl }}')">
                                                                         <i class="fas fa-file-pdf" style="font-size: 32px; color: white;"></i>
                                                                     </div>
                                                                 @else
-                                                                    <div class="document-preview" style="width: 80px; height: 80px; background: linear-gradient(135deg, #6c757d, #5a6268); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(108,117,125,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')">                                                                        <i class="fas fa-file-alt" style="font-size: 32px; color: white;"></i>
+                                                                    <div class="document-preview" style="width: 80px; height: 80px; background: linear-gradient(135deg, #6c757d, #5a6268); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(108,117,125,0.3);" onclick="previewDocument('{{ $previewUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}', '{{ $downloadUrl }}')">                                                                        <i class="fas fa-file-alt" style="font-size: 32px; color: white;"></i>
                                                                     </div>
                                                                 @endif
                                                             </div>
@@ -495,10 +497,10 @@
                                                                 <p class="small text-muted mb-0">{{ strlen($fileName) > 15 ? substr($fileName, 0, 15) . '...' : $fileName }}</p>
                                                             </div>
                                                             <div class="btn-group w-100" role="group">
-                                                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')" title="Preview">
+                                                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewDocument('{{ $previewUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}', '{{ $downloadUrl }}')" title="Preview">
                                                                     <i class="ri-eye-line"></i>
                                                                 </button>
-                                                                <a href="{{ route('students.download-academic-document', [$student, $level, $index]) }}" class="btn btn-outline-success btn-sm" title="Download">
+                                                                <a href="{{ $downloadUrl }}" class="btn btn-outline-success btn-sm" title="Download">
                                                                     <i class="ri-download-line"></i>
                                                                 </a>
                                                             </div>
@@ -722,7 +724,7 @@
         
         modalTitle.textContent = `Preview: ${title}`;
         downloadBtn.href = downloadUrl;
-        downloadBtn.download = title + '.' + fileType;
+        downloadBtn.setAttribute('download', title);
         
         content.innerHTML = '';
         
