@@ -1149,4 +1149,100 @@ class StudentController extends Controller
 
         return response()->file($filePath);
     }
+
+    public function thumbnailDocument(Student $student, $field)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id) && !$user->hasRole('Application')) {
+            abort(403);
+        }
+
+        if (!$student->$field) {
+            abort(404);
+        }
+
+        $filePath = storage_path('app/public/' . $student->$field);
+        
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        return $this->generatePdfThumbnail($filePath);
+    }
+
+    public function thumbnailAdditionalDocument(Student $student, $index)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id) && !$user->hasRole('Application')) {
+            abort(403);
+        }
+
+        $additionalDocs = is_string($student->additional_documents) ? json_decode($student->additional_documents, true) : $student->additional_documents;
+        $additionalDocs = $additionalDocs ?? [];
+
+        if (!isset($additionalDocs[$index])) {
+            abort(404);
+        }
+
+        $doc = $additionalDocs[$index];
+        $filePath = storage_path('app/public/' . $doc['file']);
+        
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        return $this->generatePdfThumbnail($filePath);
+    }
+
+    public function thumbnailAcademicDocument(Student $student, $level, $index)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id) && !$user->hasRole('Application')) {
+            abort(403);
+        }
+
+        $academicDocs = is_string($student->academic_documents) ? json_decode($student->academic_documents, true) : $student->academic_documents;
+        $academicDocs = $academicDocs ?? [];
+
+        if (!isset($academicDocs[$level][$index])) {
+            abort(404);
+        }
+
+        $docPath = $academicDocs[$level][$index];
+        $filePath = storage_path('app/public/' . $docPath);
+        
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        return $this->generatePdfThumbnail($filePath);
+    }
+
+    private function generatePdfThumbnail($pdfPath)
+    {
+        try {
+            $imagick = new \Imagick();
+            $imagick->setResolution(150, 150);
+            $imagick->readImage($pdfPath . '[0]');
+            $imagick->setImageBackgroundColor('white');
+            $imagick->setImageAlphaChannel(\Imagick::ALPHACHANNEL_REMOVE);
+            $imagick->setImageFormat('jpeg');
+            $imagick->setImageCompressionQuality(85);
+            $imagick->thumbnailImage(240, 240, true);
+            
+            $blob = $imagick->getImageBlob();
+            $imagick->clear();
+            $imagick->destroy();
+            
+            return response($blob)
+                ->header('Content-Type', 'image/jpeg')
+                ->header('Cache-Control', 'public, max-age=86400');
+        } catch (\Exception $e) {
+            \Log::error('PDF thumbnail error: ' . $e->getMessage());
+            abort(404);
+        }
+    }
 }

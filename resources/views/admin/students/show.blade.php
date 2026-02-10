@@ -253,138 +253,44 @@
                             ];
                         @endphp
                         @foreach($personalDocs as $field => $label)
+                        @if($student->$field)
                         <div class="col-md-3 mb-3">
-                            <strong>{{ $label }}:</strong><br>
-                            @if($student->$field)
-                                @php
-                                    $extension = pathinfo($student->$field, PATHINFO_EXTENSION);
-                                @endphp
-                                <div class="text-center">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body p-3 text-center">
+                                    @php
+                                        $extension = pathinfo($student->$field, PATHINFO_EXTENSION);
+                                    @endphp
+                                    <h6 class="mb-3 fw-semibold text-dark">{{ $label }}</h6>
                                     @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                        <div style="width: 80px; height: 80px; background: url('{{ route('students.thumbnail', [$student, $field]) }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
+                                        <div style="width: 120px; height: 120px; background: url('{{ route('students.preview-document', [$student, $field]) }}') center/cover; border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px;"></div>
                                     @elseif(strtolower($extension) === 'pdf')
-                                        <div style="width: 80px; height: 80px; background: url('{{ route('students.thumbnail', [$student, $field]) }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; position: relative;">
-                                            <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
-                                        </div><br>
+                                        <div style="width: 120px; height: 120px; background: url('{{ route('students.thumbnail-document', [$student, $field]) }}') center/cover; border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px;"></div>
                                     @else
-                                        <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                            <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
-                                        </div><br>
+                                        <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #6c757d, #5a6268); border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-file-alt" style="font-size: 48px; color: white;"></i>
+                                        </div>
                                     @endif
-                                    <small>{{ strtoupper($extension) }}</small><br>
-                                    <button class="btn btn-sm btn-primary mt-1 preview-doc" data-preview="{{ route('students.preview-document', [$student, $field]) }}" data-download="{{ route('students.download-document', [$student, $field]) }}" data-title="{{ $label }}" data-type="{{ strtolower($extension) }}">Preview</button>
+                                    <span class="badge bg-primary mb-2">{{ strtoupper($extension) }}</span>
+                                    <div class="btn-group w-100 mt-2" role="group">
+                                        <button class="btn btn-outline-primary btn-sm preview-doc" data-preview="{{ route('students.preview-document', [$student, $field]) }}" data-download="{{ route('students.download-document', [$student, $field]) }}" data-title="{{ $label }}" data-type="{{ strtolower($extension) }}">
+                                            <i class="ri-eye-line"></i> Preview
+                                        </button>
+                                        <a href="{{ route('students.download-document', [$student, $field]) }}" class="btn btn-outline-success btn-sm">
+                                            <i class="ri-download-line"></i> Download
+                                        </a>
+                                    </div>
                                 </div>
-                            @else
-                                <span class="text-muted">Not uploaded</span>
-                            @endif
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Class 10 Documents -->
-        <div class="col-lg-12">
-            <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
-                <div class="card-header border-bottom bg-base py-16 px-24">
-                    <h6 class="text-lg fw-semibold mb-0">Class 10 Documents</h6>
-                </div>
-                <div class="card-body p-20">
-                    <div class="row gy-3">
-                        @php
-                            $class10Docs = [
-                                'class10_marksheet' => 'Marksheet',
-                                'class10_certificate' => 'Certificate',
-                                'class10_character' => 'Character Certificate'
-                            ];
-                        @endphp
-                        @foreach($class10Docs as $field => $label)
-                        <div class="col-md-3 mb-3">
-                            <strong>{{ $label }}:</strong><br>
-                            @if($student->$field)
-                                @php
-                                    $extension = pathinfo($student->$field, PATHINFO_EXTENSION);
-                                @endphp
-                                <div class="text-center">
-                                    @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                        <div style="width: 80px; height: 80px; background: url('{{ route('students.thumbnail', [$student, $field]) }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
-                                    @elseif(strtolower($extension) === 'pdf')
-                                        <div style="width: 80px; height: 80px; background: url('{{ route('students.thumbnail', [$student, $field]) }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; position: relative;">
-                                            <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
-                                        </div><br>
-                                    @else
-                                        <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                            <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
-                                        </div><br>
-                                    @endif
-                                    <small>{{ strtoupper($extension) }}</small><br>
-                                    <button class="btn btn-sm btn-primary mt-1 preview-doc" data-preview="{{ route('students.preview-document', [$student, $field]) }}" data-download="{{ route('students.download-document', [$student, $field]) }}" data-title="{{ $label }}" data-type="{{ strtolower($extension) }}">Preview</button>
-                                </div>
-                            @else
-                                <span class="text-muted">Not uploaded</span>
-                            @endif
-                        </div>
-                        @endforeach
-                        @if($student->class10_other_name && $student->class10_other_file)
-                        <div class="col-md-3 mb-3">
-                            <strong>{{ $student->class10_other_name }}:</strong><br>
-                            @php
-                                $extension = pathinfo($student->class10_other_file, PATHINFO_EXTENSION);
-                            @endphp
-                            <div class="text-center">
-                                @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                    <div style="width: 80px; height: 80px; background: url('{{ route('students.thumbnail', [$student, 'class10_other_file']) }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
-                                @elseif(strtolower($extension) === 'pdf')
-                                    <div style="width: 80px; height: 80px; background: url('{{ route('students.thumbnail', [$student, 'class10_other_file']) }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; position: relative;">
-                                        <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
-                                    </div><br>
-                                @else
-                                    <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                        <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
-                                    </div><br>
-                                @endif
-                                <small>{{ strtoupper($extension) }}</small><br>
-                                <button class="btn btn-sm btn-primary mt-1 preview-doc" data-file="{{ route('students.download-document', [$student, 'class10_other_file']) }}" data-title="{{ $student->class10_other_name }}" data-type="{{ strtolower($extension) }}">Preview</button>
                             </div>
                         </div>
                         @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Notes Section -->
-        @if($student->notes && $student->notes->count() > 0)
-        <div class="col-lg-12">
-            <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
-                <div class="card-header border-bottom bg-base py-16 px-24">
-                    <h6 class="text-lg fw-semibold mb-0">Notes</h6>
-                </div>
-                <div class="card-body p-20">
-                    <div class="row gy-3">
-                        @foreach($student->notes->groupBy('type') as $type => $notes)
-                            <div class="col-md-6">
-                                <h6 class="text-md fw-semibold mb-3 text-{{ $type == 'counselor' ? 'primary' : 'success' }}">{{ ucfirst($type) }} Notes</h6>
-                                @foreach($notes as $note)
-                                    <div class="border border-{{ $type == 'counselor' ? 'primary' : 'success' }}-200 rounded-8 p-12 mb-3">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <small class="text-{{ $type == 'counselor' ? 'primary' : 'success' }} fw-medium">{{ $note->user->name }}</small>
-                                            <small class="text-muted">{{ $note->created_at->format('M d, Y H:i') }}</small>
-                                        </div>
-                                        <p class="mb-0 text-sm">{{ $note->note }}</p>
-                                    </div>
-                                @endforeach
-                            </div>
                         @endforeach
                     </div>
                 </div>
             </div>
         </div>
-        @endif
 
-        <!-- Additional Documents -->
-        @if($student->additional_documents)
+        <!-- Academic Documents -->
+        @if($student->academic_documents)
         <div class="col-lg-12">
             <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
                 <div class="card-header border-bottom bg-base py-16 px-24">
@@ -399,26 +305,31 @@
                             @foreach($additionalDocs as $index => $doc)
                                 @if(isset($doc['name']) && isset($doc['file']))
                                 <div class="col-md-3 mb-3">
-                                    <strong>{{ $doc['name'] }}:</strong><br>
-                                    @php
-                                        $extension = pathinfo($doc['file'], PATHINFO_EXTENSION);
-                                        $fileUrl = url('/storage/' . $doc['file']);
-                                    @endphp
-                                    <div class="text-center">
-                                        @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                            <div style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
-                                        @elseif(strtolower($extension) === 'pdf')
-                                            <div style="width: 80px; height: 80px; background: #dc3545; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; display: flex; align-items: center; justify-content: center; position: relative;">
-                                                <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
-                                                <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
-                                            </div><br>
-                                        @else
-                                            <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                                <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
-                                            </div><br>
-                                        @endif
-                                        <small>{{ strtoupper($extension) }}</small><br>
-                                        <button class="btn btn-sm btn-primary mt-1 preview-additional-doc" data-file="{{ $fileUrl }}" data-title="{{ $doc['name'] }}" data-type="{{ strtolower($extension) }}">Preview</button>
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body p-3 text-center">
+                                            @php
+                                                $extension = pathinfo($doc['file'], PATHINFO_EXTENSION);
+                                            @endphp
+                                            <h6 class="mb-3 fw-semibold text-dark">{{ $doc['name'] }}</h6>
+                                            @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                                <div style="width: 120px; height: 120px; background: url('{{ route('students.preview-additional-document', [$student, $index]) }}') center/cover; border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px;"></div>
+                                            @elseif(strtolower($extension) === 'pdf')
+                                                <div style="width: 120px; height: 120px; background: url('{{ route('students.thumbnail-additional-document', [$student, $index]) }}') center/cover; border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px;"></div>
+                                            @else
+                                                <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #6c757d, #5a6268); border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-file-alt" style="font-size: 48px; color: white;"></i>
+                                                </div>
+                                            @endif
+                                            <span class="badge bg-secondary mb-2">{{ strtoupper($extension) }}</span>
+                                            <div class="btn-group w-100 mt-2" role="group">
+                                                <button class="btn btn-outline-primary btn-sm preview-doc" data-preview="{{ route('students.preview-additional-document', [$student, $index]) }}" data-download="{{ route('students.download-additional-document', [$student, $index]) }}" data-title="{{ $doc['name'] }}" data-type="{{ strtolower($extension) }}">
+                                                    <i class="ri-eye-line"></i> Preview
+                                                </button>
+                                                <a href="{{ route('students.download-additional-document', [$student, $index]) }}" class="btn btn-outline-success btn-sm">
+                                                    <i class="ri-download-line"></i> Download
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 @endif
@@ -429,6 +340,74 @@
                             </div>
                         @endif
                     </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Academic Documents -->
+        @if($student->academic_documents)
+        <div class="col-lg-12">
+            <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
+                <div class="card-header border-bottom bg-base py-16 px-24">
+                    <h6 class="text-lg fw-semibold mb-0">Academic Documents</h6>
+                </div>
+                <div class="card-body p-20">
+                    @php
+                        $academicDocs = is_string($student->academic_documents) ? json_decode($student->academic_documents, true) : $student->academic_documents;
+                        $levelLabels = [
+                            'class10' => 'Class 10 Documents',
+                            'grade12' => '+2/Grade 12 Documents',
+                            'diploma' => 'Diploma Documents',
+                            'bachelor' => 'Bachelor Documents',
+                            'masters' => 'Masters Documents'
+                        ];
+                    @endphp
+                    @if($academicDocs && count($academicDocs) > 0)
+                        @foreach($academicDocs as $level => $documents)
+                            @if($documents && count($documents) > 0)
+                            <div class="mb-4">
+                                <h6 class="text-md fw-semibold mb-3 text-primary-light">{{ $levelLabels[$level] ?? ucfirst($level) . ' Documents' }}</h6>
+                                <div class="row gy-3">
+                                    @foreach($documents as $index => $docPath)
+                                    <div class="col-md-3 mb-3">
+                                        <div class="card border-0 shadow-sm h-100">
+                                            <div class="card-body p-3 text-center">
+                                                @php
+                                                    $extension = pathinfo($docPath, PATHINFO_EXTENSION);
+                                                @endphp
+                                                <h6 class="mb-3 fw-semibold text-dark">Document {{ $index + 1 }}</h6>
+                                                @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                                    <div style="width: 120px; height: 120px; background: url('{{ route('students.preview-academic-document', [$student, $level, $index]) }}') center/cover; border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px;"></div>
+                                                @elseif(strtolower($extension) === 'pdf')
+                                                    <div style="width: 120px; height: 120px; background: url('{{ route('students.thumbnail-academic-document', [$student, $level, $index]) }}') center/cover; border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px;"></div>
+                                                @else
+                                                    <div style="width: 120px; height: 120px; background: linear-gradient(135deg, #6c757d, #5a6268); border: 2px solid #e5e7eb; border-radius: 8px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-file-alt" style="font-size: 48px; color: white;"></i>
+                                                    </div>
+                                                @endif
+                                                <span class="badge bg-info mb-2">{{ strtoupper($extension) }}</span>
+                                                <div class="btn-group w-100 mt-2" role="group">
+                                                    <button class="btn btn-outline-primary btn-sm preview-doc" data-preview="{{ route('students.preview-academic-document', [$student, $level, $index]) }}" data-download="{{ route('students.download-academic-document', [$student, $level, $index]) }}" data-title="{{ $levelLabels[$level] ?? ucfirst($level) }} - Document {{ $index + 1 }}" data-type="{{ strtolower($extension) }}">
+                                                        <i class="ri-eye-line"></i> Preview
+                                                    </button>
+                                                    <a href="{{ route('students.download-academic-document', [$student, $level, $index]) }}" class="btn btn-outline-success btn-sm">
+                                                        <i class="ri-download-line"></i> Download
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                        @endforeach
+                    @else
+                        <div class="text-center text-muted py-4">
+                            <p>No academic documents uploaded</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
