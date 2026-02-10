@@ -28,6 +28,8 @@ Route::middleware('web')->group(function () {
         Route::get('students/{student}/download-additional-document/{index}', [StudentController::class, 'downloadAdditionalDocument'])->name('students.download-additional-document');
         Route::get('students/{student}/download-academic-document/{level}/{index}', [StudentController::class, 'downloadAcademicDocument'])->name('students.download-academic-document');
         Route::get('students/{student}/preview-document/{field}', [StudentController::class, 'previewDocument'])->name('students.preview-document');
+        Route::get('students/{student}/preview-additional-document/{index}', [StudentController::class, 'previewAdditionalDocument'])->name('students.preview-additional-document');
+        Route::get('students/{student}/preview-academic-document/{level}/{index}', [StudentController::class, 'previewAcademicDocument'])->name('students.preview-academic-document');
         Route::delete('students/{student}/delete-document/{field}', [StudentController::class, 'deleteDocument'])->name('students.delete-document');
         Route::delete('students/{student}/delete-additional-document/{index}', [StudentController::class, 'deleteAdditionalDocument'])->name('students.delete-additional-document');
         Route::delete('students/{student}/delete-academic-document/{level}/{index}', [StudentController::class, 'deleteAcademicDocument'])->name('students.delete-academic-document');

@@ -1099,4 +1099,54 @@ class StudentController extends Controller
         
         return response()->download($filePath, $fileName);
     }
+
+    public function previewAdditionalDocument(Student $student, $index)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id) && !$user->hasRole('Application')) {
+            abort(403);
+        }
+
+        $additionalDocs = is_string($student->additional_documents) ? json_decode($student->additional_documents, true) : $student->additional_documents;
+        $additionalDocs = $additionalDocs ?? [];
+
+        if (!isset($additionalDocs[$index])) {
+            abort(404);
+        }
+
+        $doc = $additionalDocs[$index];
+        $filePath = storage_path('app/public/' . $doc['file']);
+        
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        return response()->file($filePath);
+    }
+
+    public function previewAcademicDocument(Student $student, $level, $index)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id) && !$user->hasRole('Application')) {
+            abort(403);
+        }
+
+        $academicDocs = is_string($student->academic_documents) ? json_decode($student->academic_documents, true) : $student->academic_documents;
+        $academicDocs = $academicDocs ?? [];
+
+        if (!isset($academicDocs[$level][$index])) {
+            abort(404);
+        }
+
+        $docPath = $academicDocs[$level][$index];
+        $filePath = storage_path('app/public/' . $docPath);
+        
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        return response()->file($filePath);
+    }
 }
