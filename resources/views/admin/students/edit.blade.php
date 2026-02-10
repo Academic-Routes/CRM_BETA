@@ -688,31 +688,64 @@
 </div>
 
 <script>
-    // Document Preview Function
-    window.previewDocument = function(fileUrl, fileName, extension) {
-        // Decode HTML entities like in the working show page
-        fileUrl = fileUrl.replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-        
+    // Document Preview Function - matches show.blade.php approach
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attach click handlers to all preview buttons
+        document.querySelectorAll('[onclick^="previewDocument"]').forEach(function(element) {
+            const onclickAttr = element.getAttribute('onclick');
+            element.removeAttribute('onclick');
+            element.addEventListener('click', function() {
+                const match = onclickAttr.match(/previewDocument\('([^']*)',\s*'([^']*)',\s*'([^']*)'\)/);
+                if (match) {
+                    let fileUrl = match[1];
+                    const fileName = match[2];
+                    const extension = match[3];
+                    
+                    // Decode HTML entities
+                    fileUrl = fileUrl.replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                    
+                    showDocumentModal(fileUrl, extension, fileName);
+                }
+            });
+        });
+    });
+    
+    function showDocumentModal(fileUrl, fileType, title) {
         const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
         const content = document.getElementById('documentPreviewContent');
         const downloadBtn = document.getElementById('downloadDocumentBtn');
         const modalTitle = document.getElementById('documentPreviewModalLabel');
         
-        modalTitle.textContent = `Preview: ${fileName}`;
+        modalTitle.textContent = `Preview: ${title}`;
         downloadBtn.href = fileUrl;
-        downloadBtn.download = fileName;
+        downloadBtn.download = title + '.' + fileType;
         
-        if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
-            content.innerHTML = `<img src="${fileUrl}" class="img-fluid" style="max-height: 70vh;" alt="${fileName}">`;
-        } else if (extension === 'pdf') {
+        content.innerHTML = '';
+        
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
+            const img = new Image();
+            img.onload = function() {
+                content.innerHTML = `<img src="${fileUrl}" class="img-fluid" style="max-height: 70vh;" alt="${title}">`;
+            };
+            img.onerror = function() {
+                content.innerHTML = `
+                    <div class="text-center py-5">
+                        <h5>Image failed to load</h5>
+                        <p class="text-muted">The image could not be displayed.</p>
+                        <a href="${fileUrl}" class="btn btn-primary" download="${title}.${fileType}">Download File</a>
+                    </div>
+                `;
+            };
+            img.src = fileUrl;
+        } else if (fileType === 'pdf') {
             content.innerHTML = `<iframe src="${fileUrl}" width="100%" height="600px" frameborder="0"></iframe>`;
         } else {
             content.innerHTML = `
                 <div class="text-center py-5">
                     <i class="fas fa-file-alt fa-5x text-muted mb-3"></i>
-                    <h5>${fileName}</h5>
+                    <h5>${title}</h5>
                     <p class="text-muted">Preview not available for this file type.</p>
-                    <a href="${fileUrl}" class="btn btn-primary" download="${fileName}">
+                    <a href="${fileUrl}" class="btn btn-primary" download="${title}.${fileType}">
                         <i class="ri-download-line"></i> Download to View
                     </a>
                 </div>
@@ -720,7 +753,7 @@
         }
         
         modal.show();
-    };
+    }
     
     // Delete Document Function
     $(document).on('click', '.delete-document-btn', function() {
