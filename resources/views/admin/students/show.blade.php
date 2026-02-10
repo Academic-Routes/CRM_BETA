@@ -271,6 +271,12 @@
                                         </div>
                                     @endif
                                     <span class="badge bg-primary mb-2">{{ strtoupper($extension) }}</span>
+                                    @if(auth()->user()->hasRole('FrontDesk'))
+                                        <div class="text-center mt-2">
+                                            <i class="ri-checkbox-circle-fill text-success" style="font-size: 24px;"></i>
+                                            <p class="text-success small mb-0 mt-1">Uploaded</p>
+                                        </div>
+                                    @else
                                     <div class="btn-group w-100 mt-2" role="group">
                                         <button class="btn btn-outline-primary btn-sm preview-doc" data-preview="{{ route('students.preview-document', [$student, $field]) }}" data-download="{{ route('students.download-document', [$student, $field]) }}" data-title="{{ $label }}" data-type="{{ strtolower($extension) }}">
                                             <i class="ri-eye-line"></i> Preview
@@ -279,6 +285,7 @@
                                             <i class="ri-download-line"></i> Download
                                         </a>
                                     </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -321,6 +328,12 @@
                                                 </div>
                                             @endif
                                             <span class="badge bg-secondary mb-2">{{ strtoupper($extension) }}</span>
+                                            @if(auth()->user()->hasRole('FrontDesk'))
+                                                <div class="text-center mt-2">
+                                                    <i class="ri-checkbox-circle-fill text-success" style="font-size: 24px;"></i>
+                                                    <p class="text-success small mb-0 mt-1">Uploaded</p>
+                                                </div>
+                                            @else
                                             <div class="btn-group w-100 mt-2" role="group">
                                                 <button class="btn btn-outline-primary btn-sm preview-doc" data-preview="{{ route('students.preview-additional-document', [$student, $index]) }}" data-download="{{ route('students.download-additional-document', [$student, $index]) }}" data-title="{{ $doc['name'] }}" data-type="{{ strtolower($extension) }}">
                                                     <i class="ri-eye-line"></i> Preview
@@ -329,6 +342,7 @@
                                                     <i class="ri-download-line"></i> Download
                                                 </a>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -386,6 +400,12 @@
                                                     </div>
                                                 @endif
                                                 <span class="badge bg-info mb-2">{{ strtoupper($extension) }}</span>
+                                                @if(auth()->user()->hasRole('FrontDesk'))
+                                                    <div class="text-center mt-2">
+                                                        <i class="ri-checkbox-circle-fill text-success" style="font-size: 24px;"></i>
+                                                        <p class="text-success small mb-0 mt-1">Uploaded</p>
+                                                    </div>
+                                                @else
                                                 <div class="btn-group w-100 mt-2" role="group">
                                                     <button class="btn btn-outline-primary btn-sm preview-doc" data-preview="{{ route('students.preview-academic-document', [$student, $level, $index]) }}" data-download="{{ route('students.download-academic-document', [$student, $level, $index]) }}" data-title="{{ $levelLabels[$level] ?? ucfirst($level) }} - Document {{ $index + 1 }}" data-type="{{ strtolower($extension) }}">
                                                         <i class="ri-eye-line"></i> Preview
@@ -394,6 +414,7 @@
                                                         <i class="ri-download-line"></i> Download
                                                     </a>
                                                 </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
