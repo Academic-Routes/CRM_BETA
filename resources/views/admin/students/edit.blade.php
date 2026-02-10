@@ -690,8 +690,8 @@
 <script>
     // Document Preview Function
     window.previewDocument = function(fileUrl, fileName, extension) {
-        // Decode HTML entities
-        fileUrl = fileUrl.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        // Decode HTML entities like in the working show page
+        fileUrl = fileUrl.replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
         
         const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
         const content = document.getElementById('documentPreviewContent');
