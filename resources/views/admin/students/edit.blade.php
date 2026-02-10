@@ -307,18 +307,19 @@
                                                 @php
                                                     $docPath = $student->$field;
                                                     $extension = pathinfo($docPath, PATHINFO_EXTENSION);
-                                                    $fileUrl = route('students.download-document', [$student, $field]);
+                                                    $previewUrl = route('students.preview-document', [$student, $field]);
+                                                    $downloadUrl = route('students.download-document', [$student, $field]);
                                                     $fileName = basename($docPath);
                                                 @endphp
                                                 <div class="text-center mb-3">
                                                     @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                                        <div class="document-preview mb-2" style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border-radius: 8px; margin: 0 auto; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="previewDocument('{{ $fileUrl }}', '{{ $label }}', '{{ strtolower($extension) }}')"></div>
+                                                        <div class="document-preview mb-2" style="width: 80px; height: 80px; background: url('{{ $previewUrl }}') center/cover; border-radius: 8px; margin: 0 auto; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="previewDocument('{{ $previewUrl }}', '{{ $label }}', '{{ strtolower($extension) }}', '{{ $downloadUrl }}')"></div>
                                                     @elseif(strtolower($extension) === 'pdf')
-                                                        <div class="document-preview mb-2" style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(220,53,69,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $label }}', 'pdf')">
+                                                        <div class="document-preview mb-2" style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(220,53,69,0.3);" onclick="previewDocument('{{ $previewUrl }}', '{{ $label }}', 'pdf', '{{ $downloadUrl }}')">
                                                             <i class="fas fa-file-pdf" style="font-size: 28px; color: white;"></i>
                                                         </div>
                                                     @else
-                                                        <div class="document-preview mb-2" style="width: 80px; height: 80px; background: linear-gradient(135deg, #6c757d, #5a6268); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(108,117,125,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $label }}', '{{ strtolower($extension) }}')">                                                            <i class="fas fa-file-alt" style="font-size: 28px; color: white;"></i>
+                                                        <div class="document-preview mb-2" style="width: 80px; height: 80px; background: linear-gradient(135deg, #6c757d, #5a6268); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(108,117,125,0.3);" onclick="previewDocument('{{ $previewUrl }}', '{{ $label }}', '{{ strtolower($extension) }}', '{{ $downloadUrl }}')">                                                            <i class="fas fa-file-alt" style="font-size: 28px; color: white;"></i>
                                                         </div>
                                                     @endif
                                                     <div class="file-info">
@@ -328,10 +329,10 @@
                                                 </div>
                                                 <div class="d-grid gap-2">
                                                     <div class="btn-group" role="group">
-                                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewDocument('{{ $fileUrl }}', '{{ $label }}', '{{ strtolower($extension) }}')">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewDocument('{{ $previewUrl }}', '{{ $label }}', '{{ strtolower($extension) }}', '{{ $downloadUrl }}')">
                                                             <i class="ri-eye-line"></i>
                                                         </button>
-                                                        <a href="{{ route('students.download-document', [$student, $field]) }}" class="btn btn-outline-success btn-sm">
+                                                        <a href="{{ $downloadUrl }}" class="btn btn-outline-success btn-sm">
                                                             <i class="ri-download-line"></i>
                                                         </a>
                                                         <button type="button" class="btn btn-outline-warning btn-sm replace-document" data-field="{{ $field }}">
@@ -695,29 +696,32 @@
             const onclickAttr = element.getAttribute('onclick');
             element.removeAttribute('onclick');
             element.addEventListener('click', function() {
-                const match = onclickAttr.match(/previewDocument\('([^']*)',\s*'([^']*)',\s*'([^']*)'\)/);
+                const match = onclickAttr.match(/previewDocument\('([^']*)',\s*'([^']*)',\s*'([^']*)'(?:,\s*'([^']*)')?\)/);
                 if (match) {
-                    let fileUrl = match[1];
+                    let previewUrl = match[1];
                     const fileName = match[2];
                     const extension = match[3];
+                    const downloadUrl = match[4] || previewUrl;
                     
                     // Decode HTML entities
-                    fileUrl = fileUrl.replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                    previewUrl = previewUrl.replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
                     
-                    showDocumentModal(fileUrl, extension, fileName);
+                    showDocumentModal(previewUrl, extension, fileName, downloadUrl);
                 }
             });
         });
     });
     
-    function showDocumentModal(fileUrl, fileType, title) {
+    function showDocumentModal(previewUrl, fileType, title, downloadUrl) {
+        downloadUrl = downloadUrl || previewUrl;
+        
         const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
         const content = document.getElementById('documentPreviewContent');
         const downloadBtn = document.getElementById('downloadDocumentBtn');
         const modalTitle = document.getElementById('documentPreviewModalLabel');
         
         modalTitle.textContent = `Preview: ${title}`;
-        downloadBtn.href = fileUrl;
+        downloadBtn.href = downloadUrl;
         downloadBtn.download = title + '.' + fileType;
         
         content.innerHTML = '';
@@ -725,27 +729,27 @@
         if (['jpg', 'jpeg', 'png', 'gif'].includes(fileType)) {
             const img = new Image();
             img.onload = function() {
-                content.innerHTML = `<img src="${fileUrl}" class="img-fluid" style="max-height: 70vh;" alt="${title}">`;
+                content.innerHTML = `<img src="${previewUrl}" class="img-fluid" style="max-height: 70vh;" alt="${title}">`;
             };
             img.onerror = function() {
                 content.innerHTML = `
                     <div class="text-center py-5">
                         <h5>Image failed to load</h5>
                         <p class="text-muted">The image could not be displayed.</p>
-                        <a href="${fileUrl}" class="btn btn-primary" download="${title}.${fileType}">Download File</a>
+                        <a href="${downloadUrl}" class="btn btn-primary" download="${title}.${fileType}">Download File</a>
                     </div>
                 `;
             };
-            img.src = fileUrl;
+            img.src = previewUrl;
         } else if (fileType === 'pdf') {
-            content.innerHTML = `<iframe src="${fileUrl}" width="100%" height="600px" frameborder="0"></iframe>`;
+            content.innerHTML = `<iframe src="${previewUrl}" width="100%" height="600px" frameborder="0"></iframe>`;
         } else {
             content.innerHTML = `
                 <div class="text-center py-5">
                     <i class="fas fa-file-alt fa-5x text-muted mb-3"></i>
                     <h5>${title}</h5>
                     <p class="text-muted">Preview not available for this file type.</p>
-                    <a href="${fileUrl}" class="btn btn-primary" download="${title}.${fileType}">
+                    <a href="${downloadUrl}" class="btn btn-primary" download="${title}.${fileType}">
                         <i class="ri-download-line"></i> Download to View
                     </a>
                 </div>
