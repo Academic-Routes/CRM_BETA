@@ -272,7 +272,7 @@
                                         </div><br>
                                     @endif
                                     <small>{{ strtoupper($extension) }}</small><br>
-                                    <button class="btn btn-sm btn-primary mt-1 preview-doc" data-file="{{ route('students.download-document', [$student, $field]) }}" data-title="{{ $label }}" data-type="{{ strtolower($extension) }}">Preview</button>
+                                    <button class="btn btn-sm btn-primary mt-1 preview-doc" data-preview="{{ route('students.preview-document', [$student, $field]) }}" data-download="{{ route('students.download-document', [$student, $field]) }}" data-title="{{ $label }}" data-type="{{ strtolower($extension) }}">Preview</button>
                                 </div>
                             @else
                                 <span class="text-muted">Not uploaded</span>
@@ -319,7 +319,7 @@
                                         </div><br>
                                     @endif
                                     <small>{{ strtoupper($extension) }}</small><br>
-                                    <button class="btn btn-sm btn-primary mt-1 preview-doc" data-file="{{ route('students.download-document', [$student, $field]) }}" data-title="{{ $label }}" data-type="{{ strtolower($extension) }}">Preview</button>
+                                    <button class="btn btn-sm btn-primary mt-1 preview-doc" data-preview="{{ route('students.preview-document', [$student, $field]) }}" data-download="{{ route('students.download-document', [$student, $field]) }}" data-title="{{ $label }}" data-type="{{ strtolower($extension) }}">Preview</button>
                                 </div>
                             @else
                                 <span class="text-muted">Not uploaded</span>
@@ -470,11 +470,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle regular document previews
     document.querySelectorAll('.preview-doc').forEach(function(button) {
         button.addEventListener('click', function() {
-            const fileUrl = this.getAttribute('data-file');
+            const previewUrl = this.getAttribute('data-preview');
+            const downloadUrl = this.getAttribute('data-download');
             const fileType = this.getAttribute('data-type');
             const title = this.getAttribute('data-title');
             
-            showDocumentModal(fileUrl, fileType, title);
+            showDocumentModal(previewUrl, fileType, title, downloadUrl);
         });
     });
     
@@ -485,16 +486,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const fileType = this.getAttribute('data-type');
             const title = this.getAttribute('data-title');
             
-            showDocumentModal(fileUrl, fileType, title);
+            showDocumentModal(fileUrl, fileType, title, fileUrl);
         });
     });
     
-    function showDocumentModal(fileUrl, fileType, title) {
+    function showDocumentModal(previewUrl, fileType, title, downloadUrl) {
         document.getElementById('documentModalTitle').textContent = title;
         
-        // Set download with proper filename
         const downloadBtn = document.getElementById('downloadBtn');
-        downloadBtn.href = fileUrl;
+        downloadBtn.href = downloadUrl;
         downloadBtn.download = title + '.' + fileType;
         
         const content = document.getElementById('documentContent');
@@ -511,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const img = new Image();
                 img.onload = function() {
                     content.innerHTML = `
-                        <img src="${fileUrl}" style="max-width: 95%; max-height: 95%; object-fit: contain; box-shadow: 0 10px 40px rgba(255,255,255,0.1);">
+                        <img src="${previewUrl}" style="max-width: 95%; max-height: 95%; object-fit: contain; box-shadow: 0 10px 40px rgba(255,255,255,0.1);">
                     `;
                 };
                 img.onerror = function() {
@@ -519,20 +519,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div style="padding: 60px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 15px;">
                             <h5 style="color: #fff;">Image failed to load</h5>
                             <p style="color: rgba(255,255,255,0.8);">The image could not be displayed.</p>
-                            <a href="${fileUrl}" class="btn btn-light" download="${title}.${fileType}">Download File</a>
+                            <a href="${downloadUrl}" class="btn btn-light" download="${title}.${fileType}">Download File</a>
                         </div>
                     `;
                 };
-                img.src = fileUrl;
+                img.src = previewUrl;
             } else if (fileType === 'pdf') {
-                // Try iframe first, fallback to embed
                 content.innerHTML = `
-                    <iframe src="${fileUrl}" width="100%" height="100%" style="border: none;" 
+                    <iframe src="${previewUrl}" width="100%" height="100%" style="border: none;" 
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"></iframe>
                     <div style="display: none; padding: 60px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 15px;">
                         <h5 style="color: #fff;">PDF Preview Unavailable</h5>
                         <p style="color: rgba(255,255,255,0.8);">Click download to view the PDF file.</p>
-                        <a href="${fileUrl}" class="btn btn-light" download="${title}.${fileType}">Download PDF</a>
+                        <a href="${downloadUrl}" class="btn btn-light" download="${title}.${fileType}">Download PDF</a>
                     </div>
                 `;
             } else {
@@ -541,7 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <iconify-icon icon="solar:file-text-bold" style="font-size: 64px; color: #fff; margin-bottom: 20px;"></iconify-icon>
                         <h5 style="color: #fff; margin-bottom: 10px;">Preview not available</h5>
                         <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">This file type cannot be previewed in the browser.</p>
-                        <a href="${fileUrl}" class="btn btn-light" style="border-radius: 25px; padding: 12px 25px; font-weight: 600;" download="${title}.${fileType}">
+                        <a href="${downloadUrl}" class="btn btn-light" style="border-radius: 25px; padding: 12px 25px; font-weight: 600;" download="${title}.${fileType}">
                             <iconify-icon icon="solar:download-bold" class="me-2"></iconify-icon>
                             Download File
                         </a>
