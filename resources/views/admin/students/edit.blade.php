@@ -22,6 +22,57 @@
 .courses-container .d-flex {
     align-items: center;
 }
+
+/* Premium Document Cards */
+.document-preview {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.document-preview:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+}
+.document-preview::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.document-preview:hover::before {
+    opacity: 1;
+}
+.card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3) !important;
+}
+.file-info .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+}
+.btn-group .btn {
+    border-radius: 0;
+}
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
 </style>
 @endpush
 
@@ -216,116 +267,158 @@
                 <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
                     <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between">
                         <h6 class="text-lg fw-semibold mb-0">Upload Documents</h6>
+                        <button type="button" id="add-document-type" class="btn btn-primary-600 btn-sm">
+                            <i class="ri-add-line"></i> Add Document
+                        </button>
                     </div>
                     <div class="card-body p-20">
-                        <div class="row gy-3">
-                            <!-- Passport -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Passport</label>
-                                <input type="file" name="passport" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                @if($student->passport)<small class="text-success">Current: {{ basename($student->passport) }}</small>@endif
-                            </div>
-                            <!-- LOR -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Letter of Recommendation (LOR)</label>
-                                <input type="file" name="lor" class="form-control" accept=".pdf,.doc,.docx">
-                                @if($student->lor)<small class="text-success">Current: {{ basename($student->lor) }}</small>@endif
-                            </div>
-                            <!-- Medium of Instruction -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Medium of Instruction</label>
-                                <input type="file" name="moi" class="form-control" accept=".pdf,.doc,.docx">
-                                @if($student->moi)<small class="text-success">Current: {{ basename($student->moi) }}</small>@endif
-                            </div>
-                            <!-- CV -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">CV/Resume</label>
-                                <input type="file" name="cv" class="form-control" accept=".pdf,.doc,.docx">
-                                @if($student->cv)<small class="text-success">Current: {{ basename($student->cv) }}</small>@endif
-                            </div>
-                            <!-- SOP -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Statement of Purpose (SOP)</label>
-                                <input type="file" name="sop" class="form-control" accept=".pdf,.doc,.docx">
-                                @if($student->sop)<small class="text-success">Current: {{ basename($student->sop) }}</small>@endif
-                            </div>
-                            <!-- Academic Transcripts -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Academic Transcripts</label>
-                                <input type="file" name="transcripts" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                @if($student->transcripts)<small class="text-success">Current: {{ basename($student->transcripts) }}</small>@endif
-                            </div>
-                            <!-- English Test -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">English Test (IELTS/TOEFL)</label>
-                                <input type="file" name="english_test_doc" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                @if($student->english_test_doc)<small class="text-success">Current: {{ basename($student->english_test_doc) }}</small>@endif
-                            </div>
-                            <!-- Financial Documents -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Financial Documents</label>
-                                <input type="file" name="financial_docs" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                @if($student->financial_docs)<small class="text-success">Current: {{ basename($student->financial_docs) }}</small>@endif
-                            </div>
-                            <!-- Birth Certificate -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Birth Certificate</label>
-                                <input type="file" name="birth_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                @if($student->birth_certificate)<small class="text-success">Current: {{ basename($student->birth_certificate) }}</small>@endif
-                            </div>
-                            <!-- Medical Certificate -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Medical Certificate</label>
-                                <input type="file" name="medical_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                                @if($student->medical_certificate)<small class="text-success">Current: {{ basename($student->medical_certificate) }}</small>@endif
-                            </div>
-                            <!-- Student Photo -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Student Photo</label>
-                                <input type="file" name="student_photo" class="form-control" accept=".jpg,.jpeg,.png">
-                                @if($student->student_photo)<small class="text-success">Current: {{ basename($student->student_photo) }}</small>@endif
-                            </div>
-                            <!-- Additional Documents -->
-                            <div class="col-sm-12">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Additional Documents</label>
-                                <div id="additional-docs-container">
-                                    @if($student->additional_documents && is_array($student->additional_documents) && count($student->additional_documents) > 0)
-                                        @foreach($student->additional_documents as $index => $doc)
-                                            <div class="additional-doc-item mb-3">
-                                                <div class="row align-items-end">
-                                                    <div class="col-md-5">
-                                                        <input type="text" name="additional_doc_names[]" class="form-control" value="{{ $doc['name'] ?? '' }}" placeholder="Document Name">
-                                                    </div>
-                                                    <div class="col-md-5">
-                                                        <input type="file" name="additional_docs[]" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                                        @if(isset($doc['file']))<small class="text-success">Current: {{ basename($doc['file']) }}</small>@endif
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <button type="button" class="btn btn-danger-600 remove-doc" style="display: {{ $index > 0 ? 'block' : 'none' }};">Remove</button>
-                                                    </div>
-                                                </div>
+                        @php
+                            $documentTypes = [
+                                'passport' => 'Passport',
+                                'lor' => 'Letter of Recommendation (LOR)',
+                                'moi' => 'Medium of Instruction',
+                                'cv' => 'CV/Resume',
+                                'sop' => 'Statement of Purpose (SOP)',
+                                'transcripts' => 'Academic Transcripts',
+                                'english_test_doc' => 'English Test (IELTS/TOEFL)',
+                                'financial_docs' => 'Financial Documents',
+                                'birth_certificate' => 'Birth Certificate',
+                                'medical_certificate' => 'Medical Certificate',
+                                'student_photo' => 'Student Photo'
+                            ];
+                            $existingDocs = [];
+                            foreach($documentTypes as $field => $label) {
+                                if($student->$field) {
+                                    $existingDocs[$field] = $label;
+                                }
+                            }
+                        @endphp
+                        
+                        <div id="document-types-container">
+                            @if(count($existingDocs) > 0)
+                                <div class="row g-3">
+                                    @foreach($existingDocs as $field => $label)
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="card border-0 shadow-sm h-100" data-field="{{ $field }}">
+                                            <div class="card-header bg-light border-0 py-3">
+                                                <h6 class="mb-0 text-dark fw-semibold">{{ $label }}</h6>
                                             </div>
-                                        @endforeach
-                                    @else
-                                        <div class="additional-doc-item mb-3">
-                                            <div class="row align-items-end">
-                                                <div class="col-md-5">
-                                                    <input type="text" name="additional_doc_names[]" class="form-control" placeholder="Document Name">
+                                            <div class="card-body p-3">
+                                                @php
+                                                    $docPath = $student->$field;
+                                                    $extension = pathinfo($docPath, PATHINFO_EXTENSION);
+                                                    $fileUrl = url('/storage/' . $docPath);
+                                                    $fileName = basename($docPath);
+                                                @endphp
+                                                <div class="text-center mb-3">
+                                                    @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                                        <div class="document-preview mb-2" style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border-radius: 8px; margin: 0 auto; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')"></div>
+                                                    @elseif(strtolower($extension) === 'pdf')
+                                                        <div class="document-preview mb-2" style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(220,53,69,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', 'pdf')">
+                                                            <i class="fas fa-file-pdf" style="font-size: 28px; color: white;"></i>
+                                                        </div>
+                                                    @else
+                                                        <div class="document-preview mb-2" style="width: 80px; height: 80px; background: linear-gradient(135deg, #6c757d, #5a6268); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(108,117,125,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')">                                                            <i class="fas fa-file-alt" style="font-size: 28px; color: white;"></i>
+                                                        </div>
+                                                    @endif
+                                                    <div class="file-info">
+                                                        <span class="badge bg-primary mb-1">{{ strtoupper($extension) }}</span>
+                                                        <p class="small text-muted mb-0">{{ strlen($fileName) > 20 ? substr($fileName, 0, 20) . '...' : $fileName }}</p>
+                                                    </div>
                                                 </div>
-                                                <div class="col-md-5">
-                                                    <input type="file" name="additional_docs[]" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <button type="button" class="btn btn-danger-600 remove-doc" style="display: none;">Remove</button>
+                                                <div class="d-grid gap-2">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')">
+                                                            <i class="ri-eye-line"></i>
+                                                        </button>
+                                                        <a href="{{ route('students.download-document', [$student, $field]) }}" class="btn btn-outline-success btn-sm">
+                                                            <i class="ri-download-line"></i>
+                                                        </a>
+                                                        <button type="button" class="btn btn-outline-warning btn-sm replace-document" data-field="{{ $field }}">
+                                                            <i class="ri-upload-line"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-outline-danger btn-sm delete-document-btn" data-field="{{ $field }}" data-student-id="{{ $student->id }}">
+                                                            <i class="ri-delete-bin-line"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    @endif
+                                    </div>
+                                    @endforeach
                                 </div>
-                                <button type="button" id="add-more-docs" class="btn btn-primary-600 btn-sm mt-2">
-                                    <i class="ri-add-line"></i> Add More Documents
-                                </button>
-                            </div>
+                            @endif
+                            
+                            <!-- Additional Documents -->
+                            @php
+                                $additionalDocs = $student->additional_documents;
+                                if (is_string($additionalDocs)) {
+                                    $additionalDocs = json_decode($additionalDocs, true);
+                                }
+                                $additionalDocs = $additionalDocs ?? [];
+                            @endphp
+                            @if(count($additionalDocs) > 0)
+                                <div class="card border-0 shadow-sm mt-4">
+                                    <div class="card-header bg-gradient-primary text-white py-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0 fw-semibold">Additional Documents</h6>
+                                            <button type="button" class="btn btn-light btn-sm add-more-additional">
+                                                <i class="ri-add-line"></i> Add More
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="row g-3" id="additional-docs-container">
+                                            @foreach($additionalDocs as $index => $doc)
+                                                <div class="col-lg-4 col-md-6 additional-doc-item" data-index="{{ $index }}">
+                                                    <div class="card border h-100">
+                                                        <div class="card-body p-3 text-center">
+                                                            @php
+                                                                $docPath = $doc['file'] ?? '';
+                                                                $extension = pathinfo($docPath, PATHINFO_EXTENSION);
+                                                                $fileUrl = url('/storage/' . $docPath);
+                                                                $fileName = $doc['name'] ?? basename($docPath);
+                                                            @endphp
+                                                            <div class="mb-3">
+                                                                @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                                                    <div class="document-preview" style="width: 70px; height: 70px; background: url('{{ $fileUrl }}') center/cover; border-radius: 8px; margin: 0 auto; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')"></div>
+                                                                @elseif(strtolower($extension) === 'pdf')
+                                                                    <div class="document-preview" style="width: 70px; height: 70px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(220,53,69,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')">                                                                        <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
+                                                                    </div>
+                                                                @else
+                                                                    <div class="document-preview" style="width: 70px; height: 70px; background: linear-gradient(135deg, #6c757d, #5a6268); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(108,117,125,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')">                                                                        <i class="fas fa-file-alt" style="font-size: 24px; color: white;"></i>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                            <div class="file-info mb-3">
+                                                                <span class="badge bg-secondary mb-1">{{ strtoupper($extension) }}</span>
+                                                                <h6 class="small fw-semibold mb-0">{{ $fileName }}</h6>
+                                                            </div>
+                                                            <div class="btn-group w-100" role="group">
+                                                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')" title="Preview">
+                                                                    <i class="ri-eye-line"></i>
+                                                                </button>
+                                                                <a href="{{ route('students.download-additional-document', [$student, $index]) }}" class="btn btn-outline-success btn-sm" title="Download">
+                                                                    <i class="ri-download-line"></i>
+                                                                </a>
+                                                                <button type="button" class="btn btn-outline-danger btn-sm delete-additional-doc-btn" data-index="{{ $index }}" data-student-id="{{ $student->id }}" title="Remove">
+                                                                    <i class="ri-delete-bin-line"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                            
+                            @if(count($existingDocs) == 0 && count($additionalDocs) == 0)
+                                <div class="text-center text-muted py-4" id="no-documents-message">
+                                    <p>Click "Add Document" to upload documents</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -373,29 +466,42 @@
                                         </div>
                                         <div class="row gy-3 existing-documents">
                                             @foreach($documents as $index => $docPath)
-                                                <div class="col-md-3 mb-3 document-item" data-path="{{ $docPath }}">
-                                                    @php
-                                                        $extension = pathinfo($docPath, PATHINFO_EXTENSION);
-                                                        $fileUrl = url('/storage/' . $docPath);
-                                                    @endphp
-                                                    <div class="text-center position-relative">
-                                                        <button type="button" class="btn btn-danger btn-sm position-absolute" style="top: -8px; right: -8px; z-index: 10; width: 24px; height: 24px; padding: 0; border-radius: 50%;" onclick="deleteDocument('{{ $level }}', '{{ $docPath }}', this)">
-                                                            <i class="ri-close-line" style="font-size: 12px;"></i>
+                                                <div class="col-lg-3 col-md-4 col-sm-6 document-item" data-path="{{ $docPath }}" data-level="{{ $level }}" data-index="{{ $index }}">
+                                                    <div class="card border-0 shadow-sm h-100 position-relative">
+                                                        <button type="button" class="btn btn-danger btn-sm position-absolute" style="top: 8px; right: 8px; z-index: 10; width: 28px; height: 28px; padding: 0; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);" onclick="deleteAcademicDocument('{{ $level }}', {{ $index }}, {{ $student->id }}, this)">
+                                                            <i class="ri-close-line" style="font-size: 14px;"></i>
                                                         </button>
-                                                        @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                                            <div style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
-                                                        @elseif(strtolower($extension) === 'pdf')
-                                                            <div style="width: 80px; height: 80px; background: #dc3545; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; display: flex; align-items: center; justify-content: center; position: relative;">
-                                                                <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
-                                                                <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
-                                                            </div><br>
-                                                        @else
-                                                            <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                                                <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
-                                                            </div><br>
-                                                        @endif
-                                                        <small>{{ strtoupper($extension) }}</small><br>
-                                                        <small class="text-success">Uploaded</small>
+                                                        <div class="card-body p-3 text-center">
+                                                            @php
+                                                                $extension = pathinfo($docPath, PATHINFO_EXTENSION);
+                                                                $fileUrl = url('/storage/' . $docPath);
+                                                                $fileName = basename($docPath);
+                                                            @endphp
+                                                            <div class="mb-3">
+                                                                @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
+                                                                    <div class="document-preview" style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border-radius: 8px; margin: 0 auto; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')"></div>
+                                                                @elseif(strtolower($extension) === 'pdf')
+                                                                    <div class="document-preview" style="width: 80px; height: 80px; background: linear-gradient(135deg, #dc3545, #c82333); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(220,53,69,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', 'pdf')">
+                                                                        <i class="fas fa-file-pdf" style="font-size: 32px; color: white;"></i>
+                                                                    </div>
+                                                                @else
+                                                                    <div class="document-preview" style="width: 80px; height: 80px; background: linear-gradient(135deg, #6c757d, #5a6268); border-radius: 8px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(108,117,125,0.3);" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')">                                                                        <i class="fas fa-file-alt" style="font-size: 32px; color: white;"></i>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
+                                                            <div class="file-info mb-3">
+                                                                <span class="badge bg-info mb-1">{{ strtoupper($extension) }}</span>
+                                                                <p class="small text-muted mb-0">{{ strlen($fileName) > 15 ? substr($fileName, 0, 15) . '...' : $fileName }}</p>
+                                                            </div>
+                                                            <div class="btn-group w-100" role="group">
+                                                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewDocument('{{ $fileUrl }}', '{{ $fileName }}', '{{ strtolower($extension) }}')" title="Preview">
+                                                                    <i class="ri-eye-line"></i>
+                                                                </button>
+                                                                <a href="{{ route('students.download-academic-document', [$student, $level, $index]) }}" class="btn btn-outline-success btn-sm" title="Download">
+                                                                    <i class="ri-download-line"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -535,7 +641,229 @@
 @push('scripts')
 <!-- Flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<!-- Document Preview Modal -->
+<div class="modal fade" id="documentPreviewModal" tabindex="-1" aria-labelledby="documentPreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="documentPreviewModalLabel">Document Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center" id="documentPreviewContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="downloadDocumentBtn" class="btn btn-primary" download>Download</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Replace Document Modal -->
+<div class="modal fade" id="replaceDocumentModal" tabindex="-1" aria-labelledby="replaceDocumentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="replaceDocumentModalLabel">Replace Document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="replaceDocumentForm" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="replaceDocumentFile" class="form-label">Select New Document</label>
+                        <input type="file" class="form-control" id="replaceDocumentFile" name="document" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                        <small class="text-muted">Supported formats: PDF, Images, Word documents (Max: 10MB)</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Replace Document</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
+    // Document Preview Function
+    window.previewDocument = function(fileUrl, fileName, extension) {
+        const modal = new bootstrap.Modal(document.getElementById('documentPreviewModal'));
+        const content = document.getElementById('documentPreviewContent');
+        const downloadBtn = document.getElementById('downloadDocumentBtn');
+        const modalTitle = document.getElementById('documentPreviewModalLabel');
+        
+        modalTitle.textContent = `Preview: ${fileName}`;
+        downloadBtn.href = fileUrl;
+        downloadBtn.download = fileName;
+        
+        if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+            content.innerHTML = `<img src="${fileUrl}" class="img-fluid" style="max-height: 70vh;" alt="${fileName}">`;
+        } else if (extension === 'pdf') {
+            content.innerHTML = `<iframe src="${fileUrl}" width="100%" height="600px" frameborder="0"></iframe>`;
+        } else {
+            content.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-file-alt fa-5x text-muted mb-3"></i>
+                    <h5>${fileName}</h5>
+                    <p class="text-muted">Preview not available for this file type.</p>
+                    <a href="${fileUrl}" class="btn btn-primary" download="${fileName}">
+                        <i class="ri-download-line"></i> Download to View
+                    </a>
+                </div>
+            `;
+        }
+        
+        modal.show();
+    };
+    
+    // Delete Document Function
+    $(document).on('click', '.delete-document-btn', function() {
+        const field = $(this).data('field');
+        const studentId = $(this).data('student-id');
+        const button = $(this);
+        
+        if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+            $.ajax({
+                url: `/students/${studentId}/delete-document/${field}`,
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        button.closest('.document-type-item').fadeOut(300, function() {
+                            $(this).remove();
+                            if ($('.document-type-item').length === 0) {
+                                $('#no-documents-message').show();
+                            }
+                        });
+                        alert('Document deleted successfully!');
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while deleting the document.');
+                }
+            });
+        }
+    });
+    
+    // Delete Additional Document Function
+    $(document).on('click', '.delete-additional-doc-btn', function() {
+        const index = $(this).data('index');
+        const studentId = $(this).data('student-id');
+        const item = $(this).closest('.additional-doc-item');
+        
+        if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+            $.ajax({
+                url: `/students/${studentId}/delete-additional-document/${index}`,
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        item.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                        alert('Document deleted successfully!');
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while deleting the document.');
+                }
+            });
+        }
+    });
+    
+    // Delete Academic Document Function
+    window.deleteAcademicDocument = function(level, index, studentId, button) {
+        if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+            $.ajax({
+                url: `/students/${studentId}/delete-academic-document/${level}/${index}`,
+                type: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $(button).closest('.document-item').fadeOut(300, function() {
+                            $(this).remove();
+                            
+                            // Check if level is empty and hide if needed
+                            const levelContainer = $(`.academic-level-item[data-level="${level}"]`);
+                            if (levelContainer.find('.document-item').length === 0) {
+                                levelContainer.find('.existing-documents').hide();
+                            }
+                        });
+                        alert('Document deleted successfully!');
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while deleting the document.');
+                }
+            });
+        }
+    };
+    
+    // Replace Document Function
+    let currentReplaceField = null;
+    let currentStudentId = {{ $student->id }};
+    
+    $(document).on('click', '.replace-document', function() {
+        currentReplaceField = $(this).data('field');
+        const modal = new bootstrap.Modal(document.getElementById('replaceDocumentModal'));
+        modal.show();
+    });
+    
+    $('#replaceDocumentForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        if (!currentReplaceField) {
+            alert('No document field selected.');
+            return;
+        }
+        
+        const formData = new FormData(this);
+        const submitBtn = $(this).find('button[type="submit"]');
+        
+        submitBtn.prop('disabled', true).text('Replacing...');
+        
+        $.ajax({
+            url: `/students/${currentStudentId}/replace-document/${currentReplaceField}`,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Document replaced successfully!');
+                    location.reload(); // Reload to show updated document
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('An error occurred while replacing the document.');
+            },
+            complete: function() {
+                submitBtn.prop('disabled', false).text('Replace Document');
+                bootstrap.Modal.getInstance(document.getElementById('replaceDocumentModal')).hide();
+            }
+        });
+    });
+    
     $('.flatpickr').flatpickr({
         dateFormat: "Y-m-d",
         maxDate: "today",
@@ -707,32 +1035,229 @@
         form.submit();
     }
     
-    // Academic Documents Management
-    let academicDocuments = {};
-    let academicLevelCounter = $('.academic-level-item').length;
-    let documentsToDelete = [];
+    // Upload Documents Management
+    let documentsToDeleteUpload = [];
     
-    // Delete individual document
-    window.deleteDocument = function(level, docPath, button) {
+    // Delete individual upload document
+    window.deleteUploadDocument = function(field, button) {
         if (confirm('Are you sure you want to delete this document?')) {
-            documentsToDelete.push({level: level, path: docPath});
-            $(button).closest('.document-item').remove();
+            documentsToDeleteUpload.push(field);
+            $(button).closest('.document-type-item').remove();
             
             // Create hidden input to track deletions
             const deleteInput = $('<input>', {
                 type: 'hidden',
-                name: 'delete_academic_documents[]',
-                value: JSON.stringify({level: level, path: docPath})
+                name: 'delete_upload_documents[]',
+                value: field
             });
             $('form').append(deleteInput);
             
-            // Check if level is empty and hide if needed
-            const levelContainer = $(`.academic-level-item[data-level="${level}"]`);
-            if (levelContainer.find('.document-item').length === 0) {
-                levelContainer.find('.existing-documents').hide();
+            // Show no documents message if no documents left
+            if ($('.document-type-item').length === 0) {
+                $('#no-documents-message').show();
             }
         }
     };
+    
+    // Delete entire document type
+    $(document).on('click', '.delete-document-type', function() {
+        const field = $(this).data('field');
+        if (confirm('Are you sure you want to delete this document?')) {
+            documentsToDeleteUpload.push(field);
+            $(this).closest('.document-type-item').remove();
+            
+            const deleteInput = $('<input>', {
+                type: 'hidden',
+                name: 'delete_upload_documents[]',
+                value: field
+            });
+            $('form').append(deleteInput);
+            
+            if ($('.document-type-item').length === 0) {
+                $('#no-documents-message').show();
+            }
+        }
+    });
+    
+    // Replace document
+    $(document).on('click', '.replace-document', function() {
+        const container = $(this).closest('.document-type-item').find('.new-document-container');
+        container.show();
+    });
+    
+    // Add new document type
+    $('#add-document-type').on('click', function() {
+        const documentTypes = {
+            'passport': 'Passport',
+            'lor': 'Letter of Recommendation (LOR)',
+            'moi': 'Medium of Instruction',
+            'cv': 'CV/Resume',
+            'sop': 'Statement of Purpose (SOP)',
+            'transcripts': 'Academic Transcripts',
+            'english_test_doc': 'English Test (IELTS/TOEFL)',
+            'financial_docs': 'Financial Documents',
+            'birth_certificate': 'Birth Certificate',
+            'medical_certificate': 'Medical Certificate',
+            'student_photo': 'Student Photo',
+            'other': 'Other Document (Please Specify)'
+        };
+        
+        // Get already used document types (excluding 'other' to allow multiple)
+        const usedTypes = [];
+        $('.document-type-item').each(function() {
+            const field = $(this).data('field');
+            if (field && field !== 'additional' && field !== 'other') {
+                usedTypes.push(field);
+            }
+        });
+        
+        // Create options for unused document types
+        let options = '<option value="">Select Document Type</option>';
+        Object.keys(documentTypes).forEach(key => {
+            if (!usedTypes.includes(key)) {
+                options += `<option value="${key}">${documentTypes[key]}</option>`;
+            }
+        });
+        
+        if (options === '<option value="">Select Document Type</option>') {
+            alert('All document types have been added.');
+            return;
+        }
+        
+        const newDocumentItem = `
+            <div class="document-type-item border border-neutral-200 rounded-8 p-16 mb-3 new-document-type">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-md fw-semibold mb-0 text-primary-light">New Document</h6>
+                    <button type="button" class="btn btn-danger-600 btn-sm remove-new-document-type">
+                        <i class="ri-delete-bin-line"></i> Remove
+                    </button>
+                </div>
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Document Type</label>
+                        <select class="form-control form-select document-type-select">
+                            ${options}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Upload Document</label>
+                        <input type="file" class="form-control new-document-file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" disabled>
+                        <small class="text-muted">Select document type first</small>
+                    </div>
+                </div>
+                <div class="other-document-name" style="display: none;">
+                    <div class="row gy-3 mt-2">
+                        <div class="col-md-12">
+                            <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Document Name</label>
+                            <input type="text" class="form-control other-doc-name" placeholder="Please specify document name">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#document-types-container').append(newDocumentItem);
+        $('#no-documents-message').hide();
+    });
+    
+    // Remove new document type
+    $(document).on('click', '.remove-new-document-type', function() {
+        $(this).closest('.document-type-item').remove();
+        
+        if ($('.document-type-item').length === 0) {
+            $('#no-documents-message').show();
+        }
+    });
+    
+    // Document type selection
+    $(document).on('change', '.document-type-select', function() {
+        const selectedType = $(this).val();
+        const fileInput = $(this).closest('.document-type-item').find('.new-document-file');
+        const container = $(this).closest('.document-type-item');
+        const otherNameDiv = container.find('.other-document-name');
+        const otherNameInput = container.find('.other-doc-name');
+        
+        if (selectedType) {
+            fileInput.prop('disabled', false);
+            fileInput.siblings('small').text('You can upload PDF, Images, or Word documents');
+            
+            if (selectedType === 'other') {
+                otherNameDiv.show();
+                otherNameInput.prop('required', true);
+                fileInput.attr('name', 'other_documents[]');
+                container.find('h6').text('Other Document (Please Specify)');
+            } else {
+                otherNameDiv.hide();
+                otherNameInput.prop('required', false);
+                fileInput.attr('name', selectedType);
+                
+                // Update the title
+                const documentTypes = {
+                    'passport': 'Passport',
+                    'lor': 'Letter of Recommendation (LOR)',
+                    'moi': 'Medium of Instruction',
+                    'cv': 'CV/Resume',
+                    'sop': 'Statement of Purpose (SOP)',
+                    'transcripts': 'Academic Transcripts',
+                    'english_test_doc': 'English Test (IELTS/TOEFL)',
+                    'financial_docs': 'Financial Documents',
+                    'birth_certificate': 'Birth Certificate',
+                    'medical_certificate': 'Medical Certificate',
+                    'student_photo': 'Student Photo'
+                };
+                container.find('h6').text(documentTypes[selectedType]);
+            }
+        } else {
+            fileInput.prop('disabled', true);
+            fileInput.removeAttr('name');
+            fileInput.siblings('small').text('Select document type first');
+            otherNameDiv.hide();
+            otherNameInput.prop('required', false);
+            container.find('h6').text('New Document');
+        }
+    });
+    
+    // Add more additional documents
+    $(document).on('click', '.add-more-additional', function() {
+        const container = $('#additional-docs-container');
+        if (container.length === 0) {
+            // Create additional documents section if it doesn't exist
+            const additionalSection = `
+                <div class="document-type-item border border-neutral-200 rounded-8 p-16 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-md fw-semibold mb-0 text-primary-light">Additional Documents</h6>
+                        <button type="button" class="btn btn-primary-600 btn-sm add-more-additional" data-field="additional">
+                            <i class="ri-add-line"></i> Add More
+                        </button>
+                    </div>
+                    <div id="additional-docs-container">
+                        <div class="additional-doc-item mb-3">
+                            <div class="row align-items-end">
+                                <div class="col-md-5">
+                                    <input type="text" name="additional_doc_names[]" class="form-control" placeholder="Document Name">
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="file" name="additional_docs[]" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-danger-600 remove-doc" style="display: none;">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="add-more-docs" class="btn btn-primary-600 btn-sm mt-2">
+                        <i class="ri-add-line"></i> Add More Documents
+                    </button>
+                </div>
+            `;
+            $('#document-types-container').append(additionalSection);
+        }
+    });
+    
+    // Academic Documents Management
+    let academicDocuments = {};
+    let academicLevelCounter = $('.academic-level-item').length;
+    let documentsToDelete = [];
     
     // Delete entire academic level
     $(document).on('click', '.delete-academic-level', function() {

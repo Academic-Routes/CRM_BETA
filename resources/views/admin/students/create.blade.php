@@ -184,109 +184,14 @@
                 <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
                     <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between">
                         <h6 class="text-lg fw-semibold mb-0">Upload Documents</h6>
+                        <button type="button" id="add-document-type" class="btn btn-primary-600 btn-sm">
+                            <i class="ri-add-line"></i> Add Document
+                        </button>
                     </div>
                     <div class="card-body p-20">
-                        <div class="row gy-3">
-                            <!-- Passport -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Passport
-                                </label>
-                                <input type="file" name="passport" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                            <!-- LOR -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Letter of Recommendation (LOR)
-                                </label>
-                                <input type="file" name="lor" class="form-control" accept=".pdf,.doc,.docx">
-                            </div>
-                            <!-- Medium of Instruction -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Medium of Instruction
-                                </label>
-                                <input type="file" name="moi" class="form-control" accept=".pdf,.doc,.docx">
-                            </div>
-                            <!-- CV -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    CV/Resume
-                                </label>
-                                <input type="file" name="cv" class="form-control" accept=".pdf,.doc,.docx">
-                            </div>
-                            <!-- SOP -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Statement of Purpose (SOP)
-                                </label>
-                                <input type="file" name="sop" class="form-control" accept=".pdf,.doc,.docx">
-                            </div>
-                            <!-- Academic Transcripts -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Academic Transcripts
-                                </label>
-                                <input type="file" name="transcripts" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
-                            </div>
-                            <!-- English Test -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    English Test (IELTS/TOEFL)
-                                </label>
-                                <input type="file" name="english_test_doc" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                            <!-- Financial Documents -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Financial Documents
-                                </label>
-                                <input type="file" name="financial_docs" class="form-control" accept=".pdf,.jpg,.jpeg,.png" multiple>
-                            </div>
-                            <!-- Birth Certificate -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Birth Certificate
-                                </label>
-                                <input type="file" name="birth_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                            <!-- Medical Certificate -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Medical Certificate
-                                </label>
-                                <input type="file" name="medical_certificate" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
-                            </div>
-                            <!-- Student Photo -->
-                            <div class="col-sm-6">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Student Photo
-                                </label>
-                                <input type="file" name="student_photo" class="form-control" accept=".jpg,.jpeg,.png">
-                            </div>
-                            <!-- Additional Documents -->
-                            <div class="col-sm-12">
-                                <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">
-                                    Additional Documents
-                                </label>
-                                <div id="additional-docs-container">
-                                    <div class="additional-doc-item mb-3">
-                                        <div class="row align-items-end">
-                                            <div class="col-md-5">
-                                                <input type="text" name="additional_doc_names[]" class="form-control" placeholder="Document Name">
-                                            </div>
-                                            <div class="col-md-5">
-                                                <input type="file" name="additional_docs[]" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                            </div>
-                                            <div class="col-md-2">
-                                                <button type="button" class="btn btn-danger-600 remove-doc" style="display: none;">Remove</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="button" id="add-more-docs" class="btn btn-primary-600 btn-sm mt-2">
-                                    <i class="ri-add-line"></i> Add More Documents
-                                </button>
+                        <div id="document-types-container">
+                            <div class="text-center text-muted py-4" id="no-documents-message">
+                                <p>Click "Add Document" to upload documents</p>
                             </div>
                         </div>
                     </div>
@@ -338,6 +243,143 @@
         yearRange: [1950, new Date().getFullYear()],
         defaultDate: null,
         allowInput: true
+    });
+    
+    // Upload Documents Management
+    $('#add-document-type').on('click', function() {
+        const documentTypes = {
+            'passport': 'Passport',
+            'lor': 'Letter of Recommendation (LOR)',
+            'moi': 'Medium of Instruction',
+            'cv': 'CV/Resume',
+            'sop': 'Statement of Purpose (SOP)',
+            'transcripts': 'Academic Transcripts',
+            'english_test_doc': 'English Test (IELTS/TOEFL)',
+            'financial_docs': 'Financial Documents',
+            'birth_certificate': 'Birth Certificate',
+            'medical_certificate': 'Medical Certificate',
+            'student_photo': 'Student Photo',
+            'other': 'Other Document (Please Specify)'
+        };
+        
+        // Get already used document types (excluding 'other' to allow multiple)
+        const usedTypes = [];
+        $('.document-type-item').each(function() {
+            const select = $(this).find('.document-type-select');
+            if (select.val() && select.val() !== 'other') {
+                usedTypes.push(select.val());
+            }
+        });
+        
+        // Create options for unused document types
+        let options = '<option value="">Select Document Type</option>';
+        Object.keys(documentTypes).forEach(key => {
+            if (!usedTypes.includes(key)) {
+                options += `<option value="${key}">${documentTypes[key]}</option>`;
+            }
+        });
+        
+        const newDocumentItem = `
+            <div class="document-type-item border border-neutral-200 rounded-8 p-16 mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-md fw-semibold mb-0 text-primary-light">New Document</h6>
+                    <button type="button" class="btn btn-danger-600 btn-sm remove-document-type">
+                        <i class="ri-delete-bin-line"></i> Remove
+                    </button>
+                </div>
+                <div class="row gy-3">
+                    <div class="col-md-6">
+                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Document Type</label>
+                        <select class="form-control form-select document-type-select">
+                            ${options}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Upload Document</label>
+                        <input type="file" class="form-control document-file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" disabled>
+                        <small class="text-muted">Select document type first</small>
+                    </div>
+                </div>
+                <div class="other-document-name" style="display: none;">
+                    <div class="row gy-3 mt-2">
+                        <div class="col-md-12">
+                            <label class="text-sm fw-semibold text-primary-light d-inline-block mb-8">Document Name</label>
+                            <input type="text" class="form-control other-doc-name" name="other_document_names[]" placeholder="Please specify document name">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#document-types-container').append(newDocumentItem);
+        $('#no-documents-message').hide();
+    });
+    
+    // Remove document type
+    $(document).on('click', '.remove-document-type', function() {
+        $(this).closest('.document-type-item').remove();
+        
+        if ($('.document-type-item').length === 0) {
+            $('#no-documents-message').show();
+        }
+    });
+    
+    // Document type selection
+    $(document).on('change', '.document-type-select', function() {
+        const selectedType = $(this).val();
+        const fileInput = $(this).closest('.document-type-item').find('.document-file');
+        const container = $(this).closest('.document-type-item');
+        const otherNameDiv = container.find('.other-document-name');
+        const otherNameInput = container.find('.other-doc-name');
+        
+        if (selectedType) {
+            fileInput.prop('disabled', false);
+            fileInput.siblings('small').text('You can upload PDF, Images, or Word documents');
+            
+            if (selectedType === 'other') {
+                otherNameDiv.show();
+                otherNameInput.prop('required', true);
+                fileInput.attr('name', 'other_documents[]');
+                container.find('h6').text('Other Document (Please Specify)');
+            } else {
+                otherNameDiv.hide();
+                otherNameInput.prop('required', false);
+                fileInput.attr('name', selectedType);
+                
+                // Update the title
+                const documentTypes = {
+                    'passport': 'Passport',
+                    'lor': 'Letter of Recommendation (LOR)',
+                    'moi': 'Medium of Instruction',
+                    'cv': 'CV/Resume',
+                    'sop': 'Statement of Purpose (SOP)',
+                    'transcripts': 'Academic Transcripts',
+                    'english_test_doc': 'English Test (IELTS/TOEFL)',
+                    'financial_docs': 'Financial Documents',
+                    'birth_certificate': 'Birth Certificate',
+                    'medical_certificate': 'Medical Certificate',
+                    'student_photo': 'Student Photo'
+                };
+                container.find('h6').text(documentTypes[selectedType]);
+            }
+        } else {
+            fileInput.prop('disabled', true);
+            fileInput.removeAttr('name');
+            fileInput.siblings('small').text('Select document type first');
+            otherNameDiv.hide();
+            otherNameInput.prop('required', false);
+            container.find('h6').text('New Document');
+        }
+    });
+    
+    // Show/hide other qualification field
+    $('#last_qualification').on('change', function() {
+        if ($(this).val() === 'Others') {
+            $('#other_qualification_div').show();
+        } else {
+            $('#other_qualification_div').hide();
+            $('#other_qualification').val('');
+        }
     });
     
     // Academic Documents Management

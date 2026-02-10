@@ -241,7 +241,7 @@
                             $personalDocs = [
                                 'passport' => 'Passport',
                                 'lor' => 'Letter of Recommendation',
-                                'moi' => 'Medium of Instruction',
+                                'moi' => 'MOI',
                                 'cv' => 'CV/Resume',
                                 'sop' => 'Statement of Purpose',
                                 'transcripts' => 'Transcripts',
@@ -284,74 +284,11 @@
             </div>
         </div>
 
-        <!-- Academic Documents -->
-        @if($student->academic_documents)
-        <div class="col-lg-12">
-            <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
-                <div class="card-header border-bottom bg-base py-16 px-24">
-                    <h6 class="text-lg fw-semibold mb-0">Academic Documents</h6>
-                </div>
-                <div class="card-body p-20">
-                    @php
-                        $academicDocs = is_string($student->academic_documents) ? json_decode($student->academic_documents, true) : $student->academic_documents;
-                        $levelLabels = [
-                            'class10' => 'Class 10 Documents',
-                            'grade12' => '+2/Grade 12 Documents',
-                            'diploma' => 'Diploma Documents',
-                            'bachelor' => 'Bachelor Documents',
-                            'masters' => 'Masters Documents'
-                        ];
-                    @endphp
-                    @if($academicDocs && count($academicDocs) > 0)
-                        @foreach($academicDocs as $level => $documents)
-                            @if($documents && count($documents) > 0)
-                            <div class="mb-4">
-                                <h6 class="text-md fw-semibold mb-3 text-primary-light">{{ $levelLabels[$level] ?? ucfirst($level) . ' Documents' }}</h6>
-                                <div class="row gy-3">
-                                    @foreach($documents as $index => $docPath)
-                                        <div class="col-md-3 mb-3">
-                                            <strong>Document {{ $index + 1 }}:</strong><br>
-                                            @php
-                                                $extension = pathinfo($docPath, PATHINFO_EXTENSION);
-                                                $fileUrl = url('/storage/' . $docPath);
-                                            @endphp
-                                            <div class="text-center">
-                                                @if(in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']))
-                                                    <div style="width: 80px; height: 80px; background: url('{{ $fileUrl }}') center/cover; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto;"></div><br>
-                                                @elseif(strtolower($extension) === 'pdf')
-                                                    <div style="width: 80px; height: 80px; background: #dc3545; border: 1px solid #ddd; border-radius: 4px; margin: 0 auto; display: flex; align-items: center; justify-content: center; position: relative;">
-                                                        <i class="fas fa-file-pdf" style="font-size: 24px; color: white;"></i>
-                                                        <div style="position: absolute; bottom: 3px; right: 3px; background: rgba(220,53,69,0.9); border-radius: 3px; padding: 1px 4px; font-size: 9px; font-weight: bold; color: white;">PDF</div>
-                                                    </div><br>
-                                                @else
-                                                    <div style="width: 80px; height: 80px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                                                        <i class="fas fa-file-alt" style="font-size: 24px; color: #6c757d;"></i>
-                                                    </div><br>
-                                                @endif
-                                                <small>{{ strtoupper($extension) }}</small><br>
-                                                <button class="btn btn-sm btn-primary mt-1 preview-academic-doc" data-file="{{ $fileUrl }}" data-title="{{ $levelLabels[$level] ?? ucfirst($level) }} - Document {{ $index + 1 }}" data-type="{{ strtolower($extension) }}">Preview</button>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
-                        @endforeach
-                    @else
-                        <div class="col-12">
-                            <span class="text-muted">No academic documents uploaded</span>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-        @endif
-
         <!-- Class 10 Documents -->
         <div class="col-lg-12">
             <div class="shadow-1 radius-12 bg-base h-100 overflow-hidden">
                 <div class="card-header border-bottom bg-base py-16 px-24">
-                    <h6 class="text-lg fw-semibold mb-0">Legacy Academic Documents</h6>
+                    <h6 class="text-lg fw-semibold mb-0">Class 10 Documents</h6>
                 </div>
                 <div class="card-body p-20">
                     <div class="row gy-3">
@@ -543,17 +480,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle additional document previews
     document.querySelectorAll('.preview-additional-doc').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const fileUrl = this.getAttribute('data-file');
-            const fileType = this.getAttribute('data-type');
-            const title = this.getAttribute('data-title');
-            
-            showDocumentModal(fileUrl, fileType, title);
-        });
-    });
-    
-    // Handle academic document previews
-    document.querySelectorAll('.preview-academic-doc').forEach(function(button) {
         button.addEventListener('click', function() {
             const fileUrl = this.getAttribute('data-file');
             const fileType = this.getAttribute('data-type');

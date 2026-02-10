@@ -24,7 +24,14 @@ Route::middleware('web')->group(function () {
         Route::post('students/{student}/submit', [StudentController::class, 'submit'])->name('students.submit');
         Route::post('students/{student}/send-to-application', [StudentController::class, 'sendToApplication'])->name('students.send-to-application');
         Route::post('students/{student}/update-status', [StudentController::class, 'updateStatus'])->name('students.update-status');
-        Route::get('students/{student}/download/{field}', [StudentController::class, 'downloadDocument'])->name('students.download-document');
+        Route::get('students/{student}/download-document/{field}', [StudentController::class, 'downloadDocument'])->name('students.download-document');
+        Route::get('students/{student}/download-additional-document/{index}', [StudentController::class, 'downloadAdditionalDocument'])->name('students.download-additional-document');
+        Route::get('students/{student}/download-academic-document/{level}/{index}', [StudentController::class, 'downloadAcademicDocument'])->name('students.download-academic-document');
+        Route::get('students/{student}/preview-document/{field}', [StudentController::class, 'previewDocument'])->name('students.preview-document');
+        Route::delete('students/{student}/delete-document/{field}', [StudentController::class, 'deleteDocument'])->name('students.delete-document');
+        Route::delete('students/{student}/delete-additional-document/{index}', [StudentController::class, 'deleteAdditionalDocument'])->name('students.delete-additional-document');
+        Route::delete('students/{student}/delete-academic-document/{level}/{index}', [StudentController::class, 'deleteAcademicDocument'])->name('students.delete-academic-document');
+        Route::post('students/{student}/replace-document/{field}', [StudentController::class, 'replaceDocument'])->name('students.replace-document');
         Route::get('students/{student}/thumbnail/{field}', [StudentController::class, 'getThumbnail'])->name('students.thumbnail');
         Route::get('students/{student}/download/{file}', [StudentController::class, 'download'])->name('students.download');
         

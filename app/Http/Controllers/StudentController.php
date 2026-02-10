@@ -247,6 +247,19 @@ class StudentController extends Controller
                 }
             }
         }
+        
+        // Handle other documents
+        if ($request->has('other_document_names') && $request->hasFile('other_documents')) {
+            foreach ($request->other_document_names as $index => $name) {
+                if ($name && $request->hasFile("other_documents.{$index}")) {
+                    $additionalDocs[] = [
+                        'name' => $name,
+                        'file' => $request->file("other_documents.{$index}")->store($studentFolder, 'public')
+                    ];
+                }
+            }
+        }
+        
         $studentData['additional_documents'] = json_encode($additionalDocs);
 
         // Handle academic documents
@@ -573,6 +586,33 @@ class StudentController extends Controller
                 $studentData['additional_documents'] = $additionalDocs;
             }
             
+            // Handle other documents
+            if ($request->has('other_document_names') && $request->hasFile('other_documents')) {
+                $existingDocs = is_string($student->additional_documents) ? json_decode($student->additional_documents, true) : $student->additional_documents;
+                $existingDocs = $existingDocs ?? [];
+                
+                foreach ($request->other_document_names as $index => $name) {
+                    if ($name && $request->hasFile("other_documents.{$index}")) {
+                        $existingDocs[] = [
+                            'name' => $name,
+                            'file' => $request->file("other_documents.{$index}")->store($studentFolder, 'public')
+                        ];
+                    }
+                }
+                
+                $studentData['additional_documents'] = json_encode($existingDocs);
+            }
+            
+            // Handle upload document deletions
+            if ($request->has('delete_upload_documents')) {
+                foreach ($request->delete_upload_documents as $field) {
+                    if ($student->$field && Storage::disk('public')->exists($student->$field)) {
+                        Storage::disk('public')->delete($student->$field);
+                    }
+                    $studentData[$field] = null;
+                }
+            }
+            
             // Handle academic documents deletion and addition
             $currentAcademicDocs = is_string($student->academic_documents) ? json_decode($student->academic_documents, true) : $student->academic_documents;
             $currentAcademicDocs = $currentAcademicDocs ?? [];
@@ -766,7 +806,136 @@ class StudentController extends Controller
             abort(404);
         }
 
-        return response()->file($filePath);
+        // Get proper filename based on document type
+        $extension = pathinfo($student->$field, PATHINFO_EXTENSION);
+        $documentNames = [
+            'passport' => 'Passport',
+            'lor' => 'Letter_of_Recommendation',
+            'moi' => 'Medium_of_Instruction',
+            'cv' => 'CV_Resume',
+            'sop' => 'Statement_of_Purpose',
+            'transcripts' => 'Academic_Transcripts',
+            'english_test_doc' => 'English_Test_Document',
+            'financial_docs' => 'Financial_Documents',
+            'birth_certificate' => 'Birth_Certificate',
+            'medical_certificate' => 'Medical_Certificate',
+            'student_photo' => 'Student_Photo'
+        ];
+        
+        $fileName = isset($documentNames[$field]) ? $documentNames[$field] : ucfirst(str_replace('_', ' ', $field));
+        $fileName = $student->name . '_' . $fileName . '.' . $extension;
+        
+        return response()->download($filePath, $fileName);
+    }
+
+    public function previewDocument(Student $student, $field)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id) && !$user->hasRole('Application')) {
+            abort(403);
+        }
+
+        if (!$student->$field) {
+            abort(404);
+        }
+
+        $filePath = storage_path('app/public/' . $student->$field);
+        
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        $extension = pathinfo($student->$field, PATHINFO_EXTENSION);
+        $mimeType = mime_content_type($filePath);
+        
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline'
+        ]);
+    }
+
+    public function deleteDocument(Student $student, $field)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id)) {
+            abort(403);
+        }
+
+        if (!$student->$field) {
+            return response()->json(['success' => false, 'message' => 'Document not found']);
+        }
+
+        $filePath = storage_path('app/public/' . $student->$field);
+        
+        if (file_exists($filePath)) {
+            Storage::disk('public')->delete($student->$field);
+        }
+
+        $student->update([$field => null]);
+
+        return response()->json(['success' => true, 'message' => 'Document deleted successfully']);
+    }
+
+    public function deleteAdditionalDocument(Student $student, $index)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id)) {
+            abort(403);
+        }
+
+        $additionalDocs = is_string($student->additional_documents) ? json_decode($student->additional_documents, true) : $student->additional_documents;
+        $additionalDocs = $additionalDocs ?? [];
+
+        if (!isset($additionalDocs[$index])) {
+            return response()->json(['success' => false, 'message' => 'Document not found']);
+        }
+
+        $docPath = $additionalDocs[$index]['file'] ?? null;
+        if ($docPath && Storage::disk('public')->exists($docPath)) {
+            Storage::disk('public')->delete($docPath);
+        }
+
+        unset($additionalDocs[$index]);
+        $additionalDocs = array_values($additionalDocs); // Re-index array
+
+        $student->update(['additional_documents' => json_encode($additionalDocs)]);
+
+        return response()->json(['success' => true, 'message' => 'Document deleted successfully']);
+    }
+
+    public function deleteAcademicDocument(Student $student, $level, $index)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id)) {
+            abort(403);
+        }
+
+        $academicDocs = is_string($student->academic_documents) ? json_decode($student->academic_documents, true) : $student->academic_documents;
+        $academicDocs = $academicDocs ?? [];
+
+        if (!isset($academicDocs[$level][$index])) {
+            return response()->json(['success' => false, 'message' => 'Document not found']);
+        }
+
+        $docPath = $academicDocs[$level][$index];
+        if (Storage::disk('public')->exists($docPath)) {
+            Storage::disk('public')->delete($docPath);
+        }
+
+        unset($academicDocs[$level][$index]);
+        $academicDocs[$level] = array_values($academicDocs[$level]); // Re-index array
+        
+        if (empty($academicDocs[$level])) {
+            unset($academicDocs[$level]);
+        }
+
+        $student->update(['academic_documents' => json_encode($academicDocs)]);
+
+        return response()->json(['success' => true, 'message' => 'Document deleted successfully']);
     }
 
     public function download($studentId, $fileIndex)
@@ -832,5 +1001,102 @@ class StudentController extends Controller
         $student->update(['status' => $request->status]);
         
         return redirect()->route('students.index')->with('success', 'Student status updated');
+    }
+
+    public function replaceDocument(Request $request, Student $student, $field)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id)) {
+            abort(403);
+        }
+
+        $request->validate([
+            'document' => 'required|file|max:10240|mimes:pdf,jpg,jpeg,png,gif,doc,docx,txt,rtf'
+        ]);
+
+        $studentName = preg_replace('/[^A-Za-z0-9_-]/', '_', $student->name);
+        $studentFolder = 'students/' . $studentName . '_' . $student->id . '/files';
+
+        // Delete old file if exists
+        if ($student->$field && Storage::disk('public')->exists($student->$field)) {
+            Storage::disk('public')->delete($student->$field);
+        }
+
+        // Store new file
+        $newPath = $request->file('document')->store($studentFolder, 'public');
+        $student->update([$field => $newPath]);
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Document replaced successfully',
+            'file_url' => url('/storage/' . $newPath),
+            'file_name' => basename($newPath)
+        ]);
+    }
+
+    public function downloadAdditionalDocument(Student $student, $index)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id) && !$user->hasRole('Application')) {
+            abort(403);
+        }
+
+        $additionalDocs = is_string($student->additional_documents) ? json_decode($student->additional_documents, true) : $student->additional_documents;
+        $additionalDocs = $additionalDocs ?? [];
+
+        if (!isset($additionalDocs[$index])) {
+            abort(404);
+        }
+
+        $doc = $additionalDocs[$index];
+        $filePath = storage_path('app/public/' . $doc['file']);
+        
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        $extension = pathinfo($doc['file'], PATHINFO_EXTENSION);
+        $fileName = $student->name . '_' . ($doc['name'] ?? 'Additional_Document') . '.' . $extension;
+        
+        return response()->download($filePath, $fileName);
+    }
+
+    public function downloadAcademicDocument(Student $student, $level, $index)
+    {
+        $user = Auth::user();
+        
+        if (!$user->canManageRoles() && !($user->hasRole('Counselor') && $student->counselor_id === $user->id) && !$user->hasRole('Application')) {
+            abort(403);
+        }
+
+        $academicDocs = is_string($student->academic_documents) ? json_decode($student->academic_documents, true) : $student->academic_documents;
+        $academicDocs = $academicDocs ?? [];
+
+        if (!isset($academicDocs[$level][$index])) {
+            abort(404);
+        }
+
+        $docPath = $academicDocs[$level][$index];
+        $filePath = storage_path('app/public/' . $docPath);
+        
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        $extension = pathinfo($docPath, PATHINFO_EXTENSION);
+        $levelNames = [
+            'class10' => 'Class_10',
+            'grade12' => 'Grade_12',
+            'diploma' => 'Diploma',
+            'bachelor' => 'Bachelor',
+            'masters' => 'Masters'
+        ];
+        
+        $levelName = isset($levelNames[$level]) ? $levelNames[$level] : ucfirst($level);
+        $fileName = $student->name . '_' . $levelName . '_Document_' . ($index + 1) . '.' . $extension;
+        
+        return response()->download($filePath, $fileName);
     }
 }
